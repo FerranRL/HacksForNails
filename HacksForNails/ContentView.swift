@@ -17,6 +17,9 @@ struct ContentView: View {
                     if currentUser.role == "admin" {
                         DashboardView()
                             .environmentObject(loginModel)
+                    } else if currentUser.role == "stylist" {
+                        StylistView()
+                            .environmentObject(loginModel)
                     } else {
                         Home(user: currentUser) // Pantalla para usuarios regulares
                     }
