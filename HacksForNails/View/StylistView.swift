@@ -13,6 +13,7 @@ struct StylistView: View {
     @State private var showMenu: Bool = false
     @State private var selectedDate = Date()
     @State private var showingDatePicker = false
+    @StateObject private var appointmentModel: AppointmentViewModel = .init()
 
     var body: some View {
         // Integración del AnimatedSideBar
@@ -115,9 +116,16 @@ struct StylistView: View {
                                 Divider()
                                     .padding(.bottom, 10)
                                 // Aquí agregamos las citas
-                                AppointmentView(name: "Mireia Carrera", service: "Semipermanente Manos Básica Refuerzo Gel en Uñas", time: "10:00 - 11:00", price: "22€", imageName: "person1")
-                                AppointmentView(name: "Joan Parera", service: "Cutículas y vitaminas", time: "11:00 - 11:20", price: "10€", imageName: "person2")
-                                AppointmentView(name: "Rosa Vila", service: "Nail Art", time: "11:20 - 13:20", price: "55€", imageName: "person3")
+                                
+                                if appointmentModel.appointments.count > 0 {
+                                    ForEach(appointmentModel.appointments) { appointment in
+                                        AppointmentView(name: appointment.clientID, service: appointment.service, time: appointment.time, price: "\(appointment.price)€", imageName: (currentUser?.profileImage)!)
+                                    }
+                                } else {
+                                    AppointmentView(name: "Mireia Carrera", service: "Semipermanente Manos Básica Refuerzo Gel en Uñas", time: "10:00 - 11:00", price: "22€", imageName: "person1")
+                                    AppointmentView(name: "Joan Parera", service: "Cutículas y vitaminas", time: "11:00 - 11:20", price: "10€", imageName: "person2")
+                                    AppointmentView(name: "Rosa Vila", service: "Nail Art", time: "11:20 - 13:20", price: "55€", imageName: "person3")
+                                }
                             }
                             
                             
@@ -130,6 +138,18 @@ struct StylistView: View {
                     }
                 }
                 .background(Color.black)
+                .onAppear {
+                    if let stylistID = currentUser?.id {
+                        appointmentModel.fetchAppointments(for: stylistID, on: selectedDate)
+                        //appointmentModel.addSampleAppointments(for: stylistID) // Funcion para añadir citas de ejemplo
+                    }
+                }
+                .onChange(of: selectedDate) {
+                    // Llamar a la función de fetchAppointments cuando cambia la fecha seleccionada
+                    if let stylistID = currentUser?.id {
+                        appointmentModel.fetchAppointments(for: stylistID, on: selectedDate)
+                    }
+                }
             }
         } menuView: { safeArea in
             SideBarMenuView(safeArea)
@@ -138,6 +158,8 @@ struct StylistView: View {
                 .foregroundStyle(.gray)
         }
     }
+    
+    
     
     private func formattedDate(_ date: Date) -> String {
             let formatter = DateFormatter()
