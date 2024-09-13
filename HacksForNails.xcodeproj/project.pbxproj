@@ -38,6 +38,10 @@
 		7A7FFFBC2C9037D200A47013 /* AppointmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7FFFBB2C9037D200A47013 /* AppointmentView.swift */; };
 		7A7FFFBE2C92E4BF00A47013 /* Appointment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7FFFBD2C92E49C00A47013 /* Appointment.swift */; };
 		7A7FFFC22C92E63200A47013 /* AppointmentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7FFFC12C92E63200A47013 /* AppointmentViewModel.swift */; };
+		7A7FFFC42C942B7700A47013 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7FFFC32C942B6E00A47013 /* Client.swift */; };
+		7A7FFFC72C9432C300A47013 /* pass.json in Resources */ = {isa = PBXBuildFile; fileRef = 7A7FFFC62C9432BC00A47013 /* pass.json */; };
+		7A7FFFCB2C9435A600A47013 /* CreatePassJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7FFFCA2C94359400A47013 /* CreatePassJSON.swift */; };
+		7A7FFFCD2C94369F00A47013 /* CreatePass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7FFFCC2C94369500A47013 /* CreatePass.swift */; };
 		7AE9D3C92C89DF700066A958 /* AdminPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE9D3C82C89DF700066A958 /* AdminPanelView.swift */; };
 		7AE9D3CB2C89DFB00066A958 /* ExcelUploaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE9D3CA2C89DFB00066A958 /* ExcelUploaderView.swift */; };
 		7AE9D3CE2C89E0830066A958 /* CoreXLSX in Frameworks */ = {isa = PBXBuildFile; productRef = 7AE9D3CD2C89E0830066A958 /* CoreXLSX */; };
@@ -75,6 +79,10 @@
 		7A7FFFBB2C9037D200A47013 /* AppointmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppointmentView.swift; sourceTree = "<group>"; };
 		7A7FFFBD2C92E49C00A47013 /* Appointment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Appointment.swift; sourceTree = "<group>"; };
 		7A7FFFC12C92E63200A47013 /* AppointmentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppointmentViewModel.swift; sourceTree = "<group>"; };
+		7A7FFFC32C942B6E00A47013 /* Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
+		7A7FFFC62C9432BC00A47013 /* pass.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = pass.json; sourceTree = "<group>"; };
+		7A7FFFCA2C94359400A47013 /* CreatePassJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePassJSON.swift; sourceTree = "<group>"; };
+		7A7FFFCC2C94369500A47013 /* CreatePass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePass.swift; sourceTree = "<group>"; };
 		7AE9D3C82C89DF700066A958 /* AdminPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminPanelView.swift; sourceTree = "<group>"; };
 		7AE9D3CA2C89DFB00066A958 /* ExcelUploaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExcelUploaderView.swift; sourceTree = "<group>"; };
 		7AE9D3CF2C8AFC3C0066A958 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
@@ -120,6 +128,7 @@
 		7A1EBC842C2078F8004B04C4 /* HacksForNails */ = {
 			isa = PBXGroup;
 			children = (
+				7A7FFFC52C9432A200A47013 /* pass.pkpass */,
 				7AF2C13E2C3C279100D6EB08 /* GoogleService-Info.plist */,
 				7A21FDF42C21DCD000D8990B /* Info */,
 				7A71BD332C368FC50075FDFA /* Helpers */,
@@ -192,6 +201,7 @@
 		7A44FD0B2C393CB0007CF827 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				7A7FFFC32C942B6E00A47013 /* Client.swift */,
 				7A7FFFBD2C92E49C00A47013 /* Appointment.swift */,
 				7A44FD0C2C393CBD007CF827 /* User.swift */,
 			);
@@ -201,6 +211,8 @@
 		7A71BD332C368FC50075FDFA /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				7A7FFFCC2C94369500A47013 /* CreatePass.swift */,
+				7A7FFFCA2C94359400A47013 /* CreatePassJSON.swift */,
 				7A71BD342C368FF90075FDFA /* AnimatedSideBar.swift */,
 				7A71BD362C37123C0075FDFA /* KeyboardResponder.swift */,
 				7AE9D3CA2C89DFB00066A958 /* ExcelUploaderView.swift */,
@@ -217,6 +229,14 @@
 				7A7FFFBB2C9037D200A47013 /* AppointmentView.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		7A7FFFC52C9432A200A47013 /* pass.pkpass */ = {
+			isa = PBXGroup;
+			children = (
+				7A7FFFC62C9432BC00A47013 /* pass.json */,
+			);
+			path = pass.pkpass;
 			sourceTree = "<group>";
 		};
 		7ABDB74E2C2D9D33004AC5C4 /* Frameworks */ = {
@@ -300,6 +320,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7A7FFFC72C9432C300A47013 /* pass.json in Resources */,
 				7A1EBC8D2C2078F9004B04C4 /* Preview Assets.xcassets in Resources */,
 				7A21FE052C24668900D8990B /* Fact_Extra-Bold.otf in Resources */,
 				7A1EBC8A2C2078F9004B04C4 /* Assets.xcassets in Resources */,
@@ -316,10 +337,12 @@
 			files = (
 				7A7FFFC22C92E63200A47013 /* AppointmentViewModel.swift in Sources */,
 				7A58C2CF2C3D4EBA00EA135E /* EditProfileView.swift in Sources */,
+				7A7FFFCD2C94369F00A47013 /* CreatePass.swift in Sources */,
 				7A21FDF32C21D75100D8990B /* Login.swift in Sources */,
 				7AE9D3CB2C89DFB00066A958 /* ExcelUploaderView.swift in Sources */,
 				7A7FFFBE2C92E4BF00A47013 /* Appointment.swift in Sources */,
 				7A71BD352C368FF90075FDFA /* AnimatedSideBar.swift in Sources */,
+				7A7FFFC42C942B7700A47013 /* Client.swift in Sources */,
 				7A21FE072C246B3600D8990B /* CustomTextField.swift in Sources */,
 				7A7A5AF02C2C479A009B61B6 /* CustomSegmented.swift in Sources */,
 				7A21FE092C246D2E00D8990B /* LoginViewModel.swift in Sources */,
@@ -335,6 +358,7 @@
 				7A21FDFE2C24606000D8990B /* View+Extension.swift in Sources */,
 				7A71BD372C37123C0075FDFA /* KeyboardResponder.swift in Sources */,
 				7A1EBC862C2078F8004B04C4 /* HacksForNailsApp.swift in Sources */,
+				7A7FFFCB2C9435A600A47013 /* CreatePassJSON.swift in Sources */,
 				7A71BD3D2C38321F0075FDFA /* ProfileView.swift in Sources */,
 				7A7FFFBC2C9037D200A47013 /* AppointmentView.swift in Sources */,
 				7A44FD0A2C3936BC007CF827 /* DataRequestView.swift in Sources */,

@@ -10,7 +10,7 @@ import FirebaseFirestore
 
 class AppointmentViewModel: ObservableObject {
     @Published var appointments: [Appointment] = []
-    @Published var clientInfo: [String: String] = [:]
+    @Published var clientInfo: [String: Client] = [:]
     
     // Función para obtener las citas de Firebase
     func fetchAppointments(for stylistID: String, on selectedDate: Date) {
@@ -54,20 +54,31 @@ class AppointmentViewModel: ObservableObject {
     }
     
     // Función para obtener la información del cliente desde Firestore
-        func fetchClientInfo(clientID: String) {
+    func fetchClientInfo(clientID: String) {
             let db = Firestore.firestore()
             db.collection("users").document(clientID).getDocument { document, error in
                 if let error = error {
                     print("Error obteniendo la información del cliente: \(error)")
                     return
                 }
-                
+
                 guard let data = document?.data() else { return }
-                self.clientInfo[clientID] = data["profilePhoto"] as? String ?? "" // Guarda la URL de la imagen en el diccionario
-                self.clientInfo[clientID]?.append("\(data["userID"] as? String ?? ""))")
+                let profilePhoto = data["profilePhoto"] as? String ?? ""
+                let fullname = data["fullname"] as? String ?? "Cliente"
+                let email = data["email"] as? String ?? "Sin correo"
+                let phoneNumber = data["phoneNumber"] as? String ?? "Sin teléfono"
+                let clientId = data["userID"] as? String ?? ""
+                
+                // Asignar todos los datos recuperados al diccionario `clientInfo`
+                self.clientInfo[clientID] = Client(
+                    fullname: fullname,
+                    profilePhoto: profilePhoto,
+                    email: email,
+                    phoneNumber: phoneNumber,
+                    clientId: clientId
+                )
             }
         }
-    
     // Función para extraer la hora de inicio de un rango de horas
         private func extractStartTime(from timeRange: String) -> Date? {
             let formatter = DateFormatter()

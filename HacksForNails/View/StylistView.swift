@@ -120,7 +120,10 @@ struct StylistView: View {
                                 
                                 if appointmentModel.appointments.count > 0 {
                                     ForEach(appointmentModel.appointments) { appointment in
-                                        AppointmentView(name: appointment.clientID, service: appointment.service, time: appointment.time, price: "\(appointment.price)€", imageName: appointmentModel.clientInfo["profilePhoto"])
+                                        let clientDetails = appointmentModel.clientInfo[appointment.clientID]
+                                        let clientName = clientDetails?.fullname ?? "Cliente"
+                                        let clientImage = clientDetails?.profilePhoto ?? imageCustomer
+                                        AppointmentView(name: clientName, service: appointment.service, time: appointment.time, price: "\(appointment.price)€", imageName: clientImage)
                                     }
                                 } else {
                                     Text("No hay citas para la fecha seleccionada.")
