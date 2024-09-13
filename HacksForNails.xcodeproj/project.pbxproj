@@ -42,6 +42,7 @@
 		7A7FFFC72C9432C300A47013 /* pass.json in Resources */ = {isa = PBXBuildFile; fileRef = 7A7FFFC62C9432BC00A47013 /* pass.json */; };
 		7A7FFFCB2C9435A600A47013 /* CreatePassJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7FFFCA2C94359400A47013 /* CreatePassJSON.swift */; };
 		7A7FFFCD2C94369F00A47013 /* CreatePass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7FFFCC2C94369500A47013 /* CreatePass.swift */; };
+		7A7FFFD02C944B7A00A47013 /* Zip in Frameworks */ = {isa = PBXBuildFile; productRef = 7A7FFFCF2C944B7A00A47013 /* Zip */; };
 		7AE9D3C92C89DF700066A958 /* AdminPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE9D3C82C89DF700066A958 /* AdminPanelView.swift */; };
 		7AE9D3CB2C89DFB00066A958 /* ExcelUploaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE9D3CA2C89DFB00066A958 /* ExcelUploaderView.swift */; };
 		7AE9D3CE2C89E0830066A958 /* CoreXLSX in Frameworks */ = {isa = PBXBuildFile; productRef = 7AE9D3CD2C89E0830066A958 /* CoreXLSX */; };
@@ -94,6 +95,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7A7FFFD02C944B7A00A47013 /* Zip in Frameworks */,
 				7AE9D3CE2C89E0830066A958 /* CoreXLSX in Frameworks */,
 				7A1EBC972C207994004B04C4 /* FirebaseAuth in Frameworks */,
 				7A1EBC992C207994004B04C4 /* FirebaseAuthCombine-Community in Frameworks */,
@@ -271,6 +273,7 @@
 				7AF2C13C2C3C272800D6EB08 /* FirebaseStorage */,
 				7AE9D3CD2C89E0830066A958 /* CoreXLSX */,
 				7A3D5B182C9327220084DB79 /* SDWebImageSwiftUI */,
+				7A7FFFCF2C944B7A00A47013 /* Zip */,
 			);
 			productName = HacksForNails;
 			productReference = 7A1EBC822C2078F8004B04C4 /* HacksForNails.app */;
@@ -305,6 +308,7 @@
 				7A21FDF52C245CD500D8990B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				7AE9D3CC2C89E0830066A958 /* XCRemoteSwiftPackageReference "CoreXLSX" */,
 				7A3D5B172C9327220084DB79 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
+				7A7FFFCE2C944B7A00A47013 /* XCRemoteSwiftPackageReference "Zip" */,
 			);
 			productRefGroup = 7A1EBC832C2078F8004B04C4 /* Products */;
 			projectDirPath = "";
@@ -608,6 +612,14 @@
 				minimumVersion = 3.1.2;
 			};
 		};
+		7A7FFFCE2C944B7A00A47013 /* XCRemoteSwiftPackageReference "Zip" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/marmelroy/Zip.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.2;
+			};
+		};
 		7AE9D3CC2C89E0830066A958 /* XCRemoteSwiftPackageReference "CoreXLSX" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/CoreOffice/CoreXLSX.git";
@@ -648,6 +660,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 7A1EBC952C207994004B04C4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		7A7FFFCF2C944B7A00A47013 /* Zip */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7A7FFFCE2C944B7A00A47013 /* XCRemoteSwiftPackageReference "Zip" */;
+			productName = Zip;
 		};
 		7AE9D3CD2C89E0830066A958 /* CoreXLSX */ = {
 			isa = XCSwiftPackageProductDependency;

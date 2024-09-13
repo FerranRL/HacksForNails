@@ -10,6 +10,7 @@ import FirebaseFirestore
 import FirebaseStorage
 import PhotosUI
 import PassKit
+import Zip
 
 struct ProfileView: View {
     
@@ -73,19 +74,14 @@ struct ProfileView: View {
                         }
                         Button(action: {createAndAddWalletPass(stamps: 5, nextAppointment: "15 Septiembre 2024")}) {
                             HStack {
-                                Image(systemName: "wallet.pass")
+                                Image(systemName: "wallet.pass.fill")
                                     .font(.title2)
-                                Text("Añadir a Wallet")
-                                    .font(.headline)
                             }
                             .foregroundColor(.white)
                             .padding()
-                            .background(Color.blue)
-                            .cornerRadius(10)
                         }
-                        .padding(.top, 20)
                     }
-                    .padding(.top, 50)
+                    .padding(.top, 40)
                     if !editProfile {
                         Spacer()
                     }
@@ -253,6 +249,47 @@ struct ProfileView: View {
 
     }
     
+    func createAndAddWalletPass(stamps: Int, nextAppointment: String) {
+            // 1. Crear pass.json dinámicamente
+            guard let passJSON = createPassJSON(stamps: stamps, nextAppointment: nextAppointment) else {
+                print("Error al crear pass.json")
+                return
+            }
+            
+            // 2. Cargar imágenes necesarias
+            guard let iconData = loadImageData(imageName: "icon3"), // Cambia "icon" por el nombre correcto de tu imagen
+                  let logoData = loadImageData(imageName: "logo black") else { // Cambia "logo" por el nombre correcto de tu imagen
+                print("Error al cargar imágenes")
+                return
+            }
+
+            // 3. Crear el manifest con los hashes de los archivos
+            let manifest = [
+                "pass.json": sha1Hash(data: passJSON),
+                "icon.png": sha1Hash(data: iconData),
+                "logo.png": sha1Hash(data: logoData)
+            ]
+            
+            guard let manifestData = try? JSONSerialization.data(withJSONObject: manifest, options: []) else {
+                print("Error al crear manifest.json")
+                return
+            }
+            
+            // 4. Enviar manifest al servidor para firmar y obtener la signature
+            signManifestOnServer(manifestData: manifestData) { signature in
+                guard let signature = signature else {
+                    print("Error al firmar el manifest en el servidor")
+                    return
+                }
+                
+                // 5. Crear y empaquetar el archivo .pkpass
+                let passPackage = createPassPackage(passJSON: passJSON, manifestData: manifestData, signature: signature, images: ["icon.png": iconData, "logo.png": logoData])
+                
+                // 6. Presentar el pase en Wallet
+                presentPassToWallet(passPackage: passPackage)
+            }
+        }
+    
     // Función para crear el archivo pass.json
     func createPassJSON(stamps: Int, nextAppointment: String) -> Data? {
         let passData: [String: Any] = [
@@ -294,7 +331,9 @@ struct ProfileView: View {
 
     // Función para cargar imágenes desde los recursos de la app
     func loadImageData(imageName: String) -> Data? {
+        // Cargar la imagen desde los recursos de la aplicación
         guard let image = UIImage(named: imageName), let imageData = image.pngData() else {
+            print("Error al cargar la imagen: \(imageName)")
             return nil
         }
         return imageData
@@ -315,37 +354,69 @@ struct ProfileView: View {
     }
 
     // Función para crear el archivo .pkpass
-    func createPassPackage(passJSON: Data, manifestData: Data, signature: Data, images: [String: Data]) -> Data {
-        var passFiles: [String: Data] = [
-            "pass.json": passJSON,
-            "manifest.json": manifestData,
-            "signature": signature
-        ]
+    func createPassPackage(passJSON: Data, manifestData: Data, signature: Data, images: [String: Data]) -> Data? {
+        // Crear un directorio temporal para almacenar los archivos del pase
+        let fileManager = FileManager.default
+        let tempDirectoryURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         
-        for (fileName, data) in images {
-            passFiles[fileName] = data
+        do {
+            // Crear la carpeta temporal
+            try fileManager.createDirectory(at: tempDirectoryURL, withIntermediateDirectories: true, attributes: nil)
+            
+            // Guardar pass.json
+            let passJSONURL = tempDirectoryURL.appendingPathComponent("pass.json")
+            try passJSON.write(to: passJSONURL)
+            
+            // Guardar manifest.json
+            let manifestURL = tempDirectoryURL.appendingPathComponent("manifest.json")
+            try manifestData.write(to: manifestURL)
+            
+            // Guardar la signature
+            let signatureURL = tempDirectoryURL.appendingPathComponent("signature")
+            try signature.write(to: signatureURL)
+            
+            // Guardar las imágenes
+            for (fileName, imageData) in images {
+                let imageURL = tempDirectoryURL.appendingPathComponent(fileName)
+                try imageData.write(to: imageURL)
+            }
+            
+            // Comprimir todos los archivos en un .pkpass
+            let passZipURL = tempDirectoryURL.appendingPathComponent("pass.pkpass")
+            try Zip.zipFiles(paths: [passJSONURL, manifestURL, signatureURL] + images.map { tempDirectoryURL.appendingPathComponent($0.key) }, zipFilePath: passZipURL, password: nil, progress: nil)
+            
+            // Leer el archivo .pkpass generado
+            let passData = try Data(contentsOf: passZipURL)
+            return passData
+            
+        } catch {
+            print("Error al crear el pase: \(error.localizedDescription)")
+            return nil
         }
-        
-        // Empaquetar todos los archivos en un archivo .pkpass usando zip
-        // Implementa la creación del archivo .pkpass con las librerías de compresión disponibles
-        return Data() // Placeholder
     }
 
     // Función para presentar el pase en Wallet
-    func presentPassToWallet(passPackage: Data) {
+    func presentPassToWallet(passPackage: Data?) {
+        guard let passPackage = passPackage else {
+            print("Error: No se ha podido crear el archivo .pkpass")
+            return
+        }
+        
         do {
             let pass = try PKPass(data: passPackage)
             let addPassesViewController = PKAddPassesViewController(pass: pass)
             
-            // Presentar el controlador de agregar pase
             if let addPassesViewController = addPassesViewController {
                 UIApplication.shared.windows.first?.rootViewController?.present(addPassesViewController, animated: true, completion: nil)
+            } else {
+                print("Error: No se pudo crear el PKAddPassesViewController.")
             }
+            
         } catch {
             print("Error al presentar el pase: \(error.localizedDescription)")
         }
     }
-}
+
     
     func uploadImage() {
         guard let imageData = selectedImageData, let userID = currentUser?.id else { return }
