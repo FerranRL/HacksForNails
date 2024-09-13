@@ -14,6 +14,7 @@ struct StylistView: View {
     @State private var selectedDate = Date()
     @State private var showingDatePicker = false
     @StateObject private var appointmentModel: AppointmentViewModel = .init()
+    private var imageCustomer: String = "person1"
 
     var body: some View {
         // Integración del AnimatedSideBar
@@ -94,7 +95,7 @@ struct StylistView: View {
                                             Text(formattedDate(selectedDate))
                                                 .font(.headline)
                                                 .foregroundColor(.black)
-                                                
+                                            
                                             
                                         }
                                     }
@@ -119,12 +120,16 @@ struct StylistView: View {
                                 
                                 if appointmentModel.appointments.count > 0 {
                                     ForEach(appointmentModel.appointments) { appointment in
-                                        AppointmentView(name: appointment.clientID, service: appointment.service, time: appointment.time, price: "\(appointment.price)€", imageName: (currentUser?.profileImage)!)
+                                        AppointmentView(name: appointment.clientID, service: appointment.service, time: appointment.time, price: "\(appointment.price)€", imageName: appointmentModel.clientInfo["profilePhoto"])
                                     }
                                 } else {
-                                    AppointmentView(name: "Mireia Carrera", service: "Semipermanente Manos Básica Refuerzo Gel en Uñas", time: "10:00 - 11:00", price: "22€", imageName: "person1")
-                                    AppointmentView(name: "Joan Parera", service: "Cutículas y vitaminas", time: "11:00 - 11:20", price: "10€", imageName: "person2")
-                                    AppointmentView(name: "Rosa Vila", service: "Nail Art", time: "11:20 - 13:20", price: "55€", imageName: "person3")
+                                    Text("No hay citas para la fecha seleccionada.")
+                                        .font(.headline)
+                                        .foregroundColor(.gray)
+                                        .padding()
+//                                    AppointmentView(name: "Mireia Carrera", service: "Semipermanente Manos Básica Refuerzo Gel en Uñas", time: "10:00 - 11:00", price: "22€", imageName: "person1")
+//                                    AppointmentView(name: "Joan Parera", service: "Cutículas y vitaminas", time: "11:00 - 11:20", price: "10€", imageName: "person2")
+//                                    AppointmentView(name: "Rosa Vila", service: "Nail Art", time: "11:20 - 13:20", price: "55€", imageName: "person3")
                                 }
                             }
                             

@@ -10,6 +10,7 @@ import FirebaseFirestore
 
 class AppointmentViewModel: ObservableObject {
     @Published var appointments: [Appointment] = []
+    @Published var clientInfo: [String: String] = [:]
     
     // Función para obtener las citas de Firebase
     func fetchAppointments(for stylistID: String, on selectedDate: Date) {
@@ -31,6 +32,11 @@ class AppointmentViewModel: ObservableObject {
                     let timeString = data["time"] as? String ?? ""
                     let startTime = self.extractStartTime(from: timeString)
                     let date = (data["date"] as? Timestamp)?.dateValue() ?? Date()
+                    let clientID = data["clientID"] as? String ?? "9Cf9Rwo8AVa3UaAr8fhxFjnuSdk2"
+                    
+                    
+                    self.fetchClientInfo(clientID: clientID)
+                    
                     return Appointment(
                         id: document.documentID,
                         clientID: data["clientID"] as? String ?? "",
@@ -46,6 +52,21 @@ class AppointmentViewModel: ObservableObject {
                 }.sorted(by: { ($0.startTime ?? Date()) < ($1.startTime ?? Date()) }) ?? []
             }
     }
+    
+    // Función para obtener la información del cliente desde Firestore
+        func fetchClientInfo(clientID: String) {
+            let db = Firestore.firestore()
+            db.collection("users").document(clientID).getDocument { document, error in
+                if let error = error {
+                    print("Error obteniendo la información del cliente: \(error)")
+                    return
+                }
+                
+                guard let data = document?.data() else { return }
+                self.clientInfo[clientID] = data["profilePhoto"] as? String ?? "" // Guarda la URL de la imagen en el diccionario
+                self.clientInfo[clientID]?.append("\(data["userID"] as? String ?? ""))")
+            }
+        }
     
     // Función para extraer la hora de inicio de un rango de horas
         private func extractStartTime(from timeRange: String) -> Date? {
