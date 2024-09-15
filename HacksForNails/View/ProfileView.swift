@@ -294,7 +294,7 @@ struct ProfileView: View {
     func createPassJSON(stamps: Int, nextAppointment: String) -> Data? {
         let passData: [String: Any] = [
             "formatVersion": 1,
-            "passTypeIdentifier": "com.paretsdesign.hacksfornails",
+            "passTypeIdentifier": "pass.com.paretsdesign.hacksfornails",
             "serialNumber": "1234567890",
             "teamIdentifier": "H86KV5J4UN",
             "barcode": [
@@ -350,7 +350,35 @@ struct ProfileView: View {
     func signManifestOnServer(manifestData: Data, completion: @escaping (Data?) -> Void) {
         // Aquí debes implementar la lógica para enviar el manifestData al servidor y recibir la firma
         // Este es un placeholder que simula la llamada
-        completion(Data()) // Reemplaza esto con la respuesta del servidor
+        //https://vercel.com/ferrans-projects-24dae94c/pass-signing-vercel
+        print("Enviando manifest al servidor...")
+
+        let url = URL(string: "https://pass-signing-vercel.vercel.app/api/sign")! // Reemplaza 'your-project' con el nombre de tu proyecto en Vercel
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            
+            // Configura la solicitud para enviar el archivo manifest como multipart/form-data
+            let boundary = UUID().uuidString
+            request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+            
+            var body = Data()
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"manifest\"; filename=\"manifest.json\"\r\n".data(using: .utf8)!)
+            body.append("Content-Type: application/json\r\n\r\n".data(using: .utf8)!)
+            body.append(manifestData)
+            body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+            
+            // Realiza la solicitud al servidor Vercel
+            URLSession.shared.uploadTask(with: request, from: body) { data, response, error in
+                if let error = error {
+                    print("Error al enviar el manifest: \(error.localizedDescription)")
+                    completion(nil)
+                    return
+                }
+                
+                // Devuelve la firma recibida del servidor
+                completion(data)
+            }.resume()
     }
 
     // Función para crear el archivo .pkpass
