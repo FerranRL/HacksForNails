@@ -258,8 +258,10 @@ struct ProfileView: View {
         }
 
         // 2. Cargar imágenes necesarias
-        guard let iconData = loadImageData(imageName: "icon3"), // Cambia "icon" por el nombre correcto de tu imagen
-              let logoData = loadImageData(imageName: "logo black") else { // Cambia "logo" por el nombre correcto de tu imagen
+        guard let iconData = loadImageData(imageName: "icon3"),
+              let logoData = loadImageData(imageName: "logo black"),
+              let stripData = loadImageData(imageName: "strip")
+            else {
             print("Error al cargar imágenes")
             return
         }
@@ -268,7 +270,8 @@ struct ProfileView: View {
         let manifest = [
             "pass.json": sha1Hash(data: passJSON),
             "icon.png": sha1Hash(data: iconData),
-            "logo.png": sha1Hash(data: logoData)
+            "logo.png": sha1Hash(data: logoData),
+            "strip.png": sha1Hash(data: stripData)
         ]
         
         // Verificar el contenido del manifest
@@ -290,7 +293,7 @@ struct ProfileView: View {
             }
             
             // 5. Crear y empaquetar el archivo .pkpass
-            let passPackage = createPassPackage(passJSON: passJSON, manifestData: manifestData, signature: signature, images: ["icon.png": iconData, "logo.png": logoData])
+            let passPackage = createPassPackage(passJSON: passJSON, manifestData: manifestData, signature: signature, images: ["icon.png": iconData, "logo.png": logoData, "strip.png": stripData])
             
             // Verificar que el pase se ha creado correctamente
             if passPackage == nil {
@@ -310,7 +313,7 @@ struct ProfileView: View {
               "passTypeIdentifier": "pass.com.paretsdesign.hacksfornails", // Asegúrate de que coincide exactamente con tu certificado
               "serialNumber": "1234567890",
               "teamIdentifier": "H86KV5J4UN", // Asegúrate de que coincide exactamente con tu equipo
-              "organizationName": "Beauty Hacks",
+              "organizationName": "B e a u t y  H a c k s",
               "description": "Tarjeta Cliente",
               "logoText": "H A C K S",
               "foregroundColor": "rgb(255, 255, 255)",
@@ -320,28 +323,31 @@ struct ProfileView: View {
                 "format": "PKBarcodeFormatQR",
                 "messageEncoding": "iso-8859-1"
             ],
-            "generic": [
+            "storeCard": [
                     "headerFields": [
                         [
                             "key": "header",
-                            "label": "Beauty Hacks",
-                            "value": ""
+                            "label": "",
+                            "value": "BEAUTY HACKS"
                         ]
                     ],
                     "primaryFields": [
-                        [
-                            "key": "stamps",
-                            "label": "",
-                            "value": "Tienes \(stamps) sellos. Consigue 3 sellos más para obtener un descuento."
-                        ]
+                        
                     ],
                     "secondaryFields": [
                         [
                             "key": "nextAppointment",
                             "label": "Próxima Cita",
-                            "value": "\(nextAppointment)"
+                            "value": "Próxima Cita"
                         ]
-                    ]
+                    ],
+                    "auxiliaryFields" : [
+                          [
+                            "key" : "deal",
+                            "label" : "Deal of the Day",
+                            "value" : "\(nextAppointment)"
+                          ]
+                        ]
                 ]
         ]
         
@@ -490,7 +496,12 @@ struct ProfileView: View {
             let addPassesViewController = PKAddPassesViewController(pass: pass)
             
             if let addPassesViewController = addPassesViewController {
-                UIApplication.shared.windows.first?.rootViewController?.present(addPassesViewController, animated: true, completion: nil)
+                DispatchQueue.main.async {
+                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                           let rootVC = windowScene.windows.first?.rootViewController {
+                            rootVC.present(addPassesViewController, animated: true, completion: nil)
+                        }
+                    }
             } else {
                 print("Error: No se pudo crear el PKAddPassesViewController.")
             }
