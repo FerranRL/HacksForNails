@@ -28,6 +28,10 @@ struct ProfileView: View {
     @State var email: String = ""
     @State var phone: String = ""
     
+    @State private var isLoading = false
+    @State private var showErrorAlert = false
+    @State private var errorMessage = ""
+    
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -244,67 +248,99 @@ struct ProfileView: View {
                 Spacer()
             }
             
+            if isLoading {
+                VStack {
+                    VStack(spacing: 20) {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white)) // ProgressView en negro
+                            .scaleEffect(2) // Ajustar el tamaño del ProgressView
+                        
+                        Text("Generando tu pase...")
+                            .foregroundColor(.white)
+                            .font(.headline)
+                    }
+                    .frame(width: 250, height: 200) // Ajustar el tamaño del cuadro
+                    .background(Color.black) // Fondo blanco
+                    .cornerRadius(20) // Esquinas redondeadas
+                    .shadow(radius: 10)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.black.opacity(0.8))
+                .edgesIgnoringSafeArea(.all)
+            }
+            
         }
         .ignoresSafeArea()
         .navigationBarBackButtonHidden(true)
-
+        .alert(isPresented: $showErrorAlert) {
+                    Alert(
+                        title: Text("Error"),
+                        message: Text(errorMessage),
+                        dismissButton: .default(Text("Aceptar"))
+                    )
+                    
+                }
+        
     }
     
     func createAndAddWalletPass(stamps: Int, nextAppointment: String) {
-        // 1. Crear pass.json dinámicamente
-        guard let passJSON = createPassJSON(stamps: stamps, nextAppointment: nextAppointment) else {
-            print("Error al crear pass.json")
-            return
-        }
+            isLoading = true  // Mostrar el indicador de carga
 
-        // 2. Cargar imágenes necesarias
-        guard let iconData = loadImageData(imageName: "icon3"),
-              let logoData = loadImageData(imageName: "logo black"),
-              let stripData = loadImageData(imageName: "strip")
-            else {
-            print("Error al cargar imágenes")
-            return
-        }
+            // 1. Crear pass.json dinámicamente
+            guard let passJSON = createPassJSON(stamps: stamps, nextAppointment: nextAppointment) else {
+                showError("Error al crear pass.json")
+                return
+            }
 
-        // 3. Crear el manifest con los hashes de los archivos
-        let manifest = [
-            "pass.json": sha1Hash(data: passJSON),
-            "icon.png": sha1Hash(data: iconData),
-            "logo.png": sha1Hash(data: logoData),
-            "strip.png": sha1Hash(data: stripData)
-        ]
-        
-        // Verificar el contenido del manifest
-        print("Manifest creado: \(manifest)")
+            // 2. Cargar imágenes necesarias
+            guard let iconData = loadImageData(imageName: "icon3"),
+                  let logoData = loadImageData(imageName: "logo black"),
+                  let stripData = loadImageData(imageName: "strip") else {
+                showError("Error al cargar imágenes")
+                return
+            }
 
-        guard let manifestData = try? JSONSerialization.data(withJSONObject: manifest, options: []) else {
-            print("Error al crear manifest.json")
-            return
-        }
-        
-        // Verificar los datos del manifest antes de enviarlos
-        print("Manifest Data: \(String(data: manifestData, encoding: .utf8) ?? "Error al mostrar manifest data")")
-
-        // 4. Enviar manifest al servidor para firmar y obtener la signature
-        signManifestOnServer(manifestData: manifestData) { signature in
-            guard let signature = signature else {
-                print("Error al firmar el manifest en el servidor")
+            // 3. Crear el manifest con los hashes de los archivos
+            let manifest = [
+                "pass.json": sha1Hash(data: passJSON),
+                "icon.png": sha1Hash(data: iconData),
+                "logo.png": sha1Hash(data: logoData),
+                "strip.png": sha1Hash(data: stripData)
+            ]
+            
+            guard let manifestData = try? JSONSerialization.data(withJSONObject: manifest, options: []) else {
+                showError("Error al crear manifest.json")
                 return
             }
             
-            // 5. Crear y empaquetar el archivo .pkpass
-            let passPackage = createPassPackage(passJSON: passJSON, manifestData: manifestData, signature: signature, images: ["icon.png": iconData, "logo.png": logoData, "strip.png": stripData])
-            
-            // Verificar que el pase se ha creado correctamente
-            if passPackage == nil {
-                print("Error al crear el archivo .pkpass")
-                return
+            // 4. Enviar manifest al servidor para firmar y obtener la signature
+            signManifestOnServer(manifestData: manifestData) { signature in
+                guard let signature = signature else {
+                    showError("Error al firmar el manifest en el servidor")
+                    return
+                }
+                
+                // 5. Crear y empaquetar el archivo .pkpass
+                let passPackage = createPassPackage(passJSON: passJSON, manifestData: manifestData, signature: signature, images: ["icon.png": iconData, "logo.png": logoData, "strip.png": stripData])
+                
+                guard passPackage != nil else {
+                    showError("Error al crear el archivo .pkpass")
+                    return
+                }
+                
+                // 6. Presentar el pase en Wallet
+                presentPassToWallet(passPackage: passPackage)
+                isLoading = false  // Ocultar el indicador de carga
             }
-            
-            // 6. Presentar el pase en Wallet
-            presentPassToWallet(passPackage: passPackage)
         }
-    }
+    
+    func showError(_ message: String) {
+            DispatchQueue.main.async {
+                self.isLoading = false  // Ocultar el indicador de carga
+                self.errorMessage = message
+                self.showErrorAlert = true  // Mostrar alerta de error
+            }
+        }
     
     // Función para crear el archivo pass.json
     func createPassJSON(stamps: Int, nextAppointment: String) -> Data? {
