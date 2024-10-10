@@ -253,40 +253,20 @@ struct UpcomingAppointmentsView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Próximas Citas")
                 .font(.headline)
-                .foregroundColor(.white)
-                .padding(.horizontal)
+                .foregroundColor(.black)
+                .padding(.top, 10)
 
-            ForEach(0..<5) { _ in
-                AppointmentRowView()
-            }
+            AppointmentView(name: "Mireia Carrera", service: "Semipermanente Manos Básica Refuerzo Gel en Uñas", time: "10:00 - 11:00 - Parets", price: "22€", imageName: "person1", showMore: false)
+            AppointmentView(name: "Joan Parera", service: "Cutículas y vitaminas", time: "10:00 - 10:20 - Granollers", price: "10€", imageName: "person2", showMore: false)
+            AppointmentView(name: "Rosa Vila", service: "Nail Art", time: "11:00 - 13:00 - Parets", price: "55€", imageName: "person3", showMore: false)
         }
-        .background(Color.gray.opacity(0.2))
-        .cornerRadius(10)
-    }
-}
-
-struct AppointmentRowView: View {
-    var body: some View {
-        HStack {
-            Image(systemName: "person.crop.circle.fill")
-                .resizable()
-                .frame(width: 40, height: 40)
-                .foregroundColor(.white)
-            VStack(alignment: .leading) {
-                Text("Nombre del Cliente")
-                    .foregroundColor(.white)
-                Text("Detalles de la cita")
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.7))
-            }
-            Spacer()
-            Text("22€")
-                .foregroundColor(.white)
-        }
-        .padding(.vertical, 10)
         .padding(.horizontal)
+        .background(Color.white)
+        .cornerRadius(10)
+        
     }
 }
+
 
 struct FinancialTargetView: View {
     var body: some View {

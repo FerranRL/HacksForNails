@@ -9,10 +9,13 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject var loginModel: LoginViewModel = LoginViewModel.shared
-    
+
     var body: some View {
         NavigationStack {
-            if loginModel.logStatus {
+            if loginModel.isLoading {
+                // Vista de carga mientras se cargan los datos del usuario
+                LoadingView()
+            } else if loginModel.logStatus {
                 if let currentUser = loginModel.currentUser {
                     if currentUser.role == "admin" {
                         DashboardView()
@@ -31,9 +34,13 @@ struct ContentView: View {
         .onAppear {
             // Verificar el estado del usuario al iniciar la aplicación
             loginModel.checkUserStatus()
+            //loginModel.logout()
         }
     }
 }
+
+
+
 
 #Preview {
     ContentView()

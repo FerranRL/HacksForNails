@@ -41,23 +41,25 @@ class LoginViewModel:ObservableObject {
         }
 
         
-        func checkUserStatus() {
+    func checkUserStatus() {
+            isLoading = true
             // Verificar si hay un usuario autenticado en Firebase
             if let firebaseUser = Auth.auth().currentUser {
-                // Intentar cargar los datos del usuario desde Firestore
                 fetchUserData(userIdentifier: firebaseUser.uid)
             } else if let savedUser = loadUserFromDefaults() {
-                // Si hay un usuario guardado en UserDefaults, cargarlo
                 self.currentUser = savedUser
+                self.loadUserData() // Cargar la imagen de perfil si es necesario
                 self.logStatus = true
+                self.isLoading = false
             } else {
                 // No hay usuario autenticado
                 self.logStatus = false
                 self.currentUser = nil
+                self.isLoading = false
             }
         }
         
-        func fetchUserData(userIdentifier: String) {
+    func fetchUserData(userIdentifier: String) {
             let userDocument = Firestore.firestore().collection("users").document(userIdentifier)
             
             userDocument.getDocument { [weak self] (document, error) in
@@ -74,9 +76,26 @@ class LoginViewModel:ObservableObject {
                     )
                     self.currentUser = user
                     self.logStatus = true
+                    
+                    // Cargar la imagen de perfil
+                    if let profilePhotoURL = user.profileImage {
+                        self.loadImage(from: profilePhotoURL) { image in
+                            DispatchQueue.main.async {
+                                self.profileImage = image
+                                self.isLoading = false // Finaliza la carga
+                            }
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            self.isLoading = false // Finaliza la carga
+                        }
+                    }
                 } else {
-                    self.logStatus = false
-                    self.currentUser = nil
+                    DispatchQueue.main.async {
+                        self.logStatus = false
+                        self.currentUser = nil
+                        self.isLoading = false
+                    }
                 }
             }
         }
@@ -88,8 +107,8 @@ class LoginViewModel:ObservableObject {
                 "email": user.email,
                 "fullName": user.fullName,
                 "role": user.role,
-                "phone": user.phone,
-                "profileImage": user.profileImage
+                "phone": user.phone ?? "",
+                "profileImage": user.profileImage ?? ""
             ]
             UserDefaults.standard.set(userData, forKey: "currentUser")
         }
@@ -143,6 +162,7 @@ class LoginViewModel:ObservableObject {
     
     //@Published var currentUser: User? = nil
     @Published var profileImage: UIImage? = nil
+    @Published var isLoading: Bool = true
     @Published var backgroundImage: UIImage? = nil
     
     // MARK: Get User data

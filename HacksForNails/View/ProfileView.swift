@@ -9,6 +9,9 @@ import SwiftUI
 import FirebaseFirestore
 import FirebaseStorage
 import PhotosUI
+import PassKit
+import Zip
+import CommonCrypto
 
 struct ProfileView: View {
     
@@ -24,6 +27,10 @@ struct ProfileView: View {
     @State var username: String = ""
     @State var email: String = ""
     @State var phone: String = ""
+    
+    @State private var isLoading = false
+    @State private var showErrorAlert = false
+    @State private var errorMessage = ""
     
     var body: some View {
         GeometryReader { geometry in
@@ -70,8 +77,16 @@ struct ProfileView: View {
                         .sheet(isPresented: $showImagePicker, onDismiss: uploadImage) {
                             ImagePicker(selectedImageData: $selectedImageData)
                         }
+                        Button(action: {createAndAddWalletPass(stamps: 5, nextAppointment: "15 Septiembre 2024")}) {
+                            HStack {
+                                Image(systemName: "wallet.pass.fill")
+                                    .font(.title2)
+                            }
+                            .foregroundColor(.white)
+                            .padding()
+                        }
                     }
-                    .padding(.top, 50)
+                    .padding(.top, 40)
                     if !editProfile {
                         Spacer()
                     }
@@ -233,13 +248,305 @@ struct ProfileView: View {
                 Spacer()
             }
             
+            if isLoading {
+                VStack {
+                    VStack(spacing: 20) {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white)) // ProgressView en negro
+                            .scaleEffect(2) // Ajustar el tamaño del ProgressView
+                        
+                        Text("Generando tu pase...")
+                            .foregroundColor(.white)
+                            .font(.headline)
+                    }
+                    .frame(width: 250, height: 200) // Ajustar el tamaño del cuadro
+                    .background(Color.black) // Fondo blanco
+                    .cornerRadius(20) // Esquinas redondeadas
+                    .shadow(radius: 10)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.black.opacity(0.8))
+                .edgesIgnoringSafeArea(.all)
+            }
+            
         }
         .ignoresSafeArea()
         .navigationBarBackButtonHidden(true)
-
+        .alert(isPresented: $showErrorAlert) {
+                    Alert(
+                        title: Text("Error"),
+                        message: Text(errorMessage),
+                        dismissButton: .default(Text("Aceptar"))
+                    )
+                    
+                }
+        
     }
     
+    func createAndAddWalletPass(stamps: Int, nextAppointment: String) {
+            isLoading = true  // Mostrar el indicador de carga
+
+            // 1. Crear pass.json dinámicamente
+            guard let passJSON = createPassJSON(stamps: stamps, nextAppointment: nextAppointment) else {
+                showError("Error al crear pass.json")
+                return
+            }
+
+            // 2. Cargar imágenes necesarias
+            guard let iconData = loadImageData(imageName: "icon3"),
+                  let logoData = loadImageData(imageName: "logo black"),
+                  let stripData = loadImageData(imageName: "strip") else {
+                showError("Error al cargar imágenes")
+                return
+            }
+
+            // 3. Crear el manifest con los hashes de los archivos
+            let manifest = [
+                "pass.json": sha1Hash(data: passJSON),
+                "icon.png": sha1Hash(data: iconData),
+                "logo.png": sha1Hash(data: logoData),
+                "strip.png": sha1Hash(data: stripData)
+            ]
+            
+            guard let manifestData = try? JSONSerialization.data(withJSONObject: manifest, options: []) else {
+                showError("Error al crear manifest.json")
+                return
+            }
+            
+            // 4. Enviar manifest al servidor para firmar y obtener la signature
+            signManifestOnServer(manifestData: manifestData) { signature in
+                guard let signature = signature else {
+                    showError("Error al firmar el manifest en el servidor")
+                    return
+                }
+                
+                // 5. Crear y empaquetar el archivo .pkpass
+                let passPackage = createPassPackage(passJSON: passJSON, manifestData: manifestData, signature: signature, images: ["icon.png": iconData, "logo.png": logoData, "strip.png": stripData])
+                
+                guard passPackage != nil else {
+                    showError("Error al crear el archivo .pkpass")
+                    return
+                }
+                
+                // 6. Presentar el pase en Wallet
+                presentPassToWallet(passPackage: passPackage)
+                isLoading = false  // Ocultar el indicador de carga
+            }
+        }
     
+    func showError(_ message: String) {
+            DispatchQueue.main.async {
+                self.isLoading = false  // Ocultar el indicador de carga
+                self.errorMessage = message
+                self.showErrorAlert = true  // Mostrar alerta de error
+            }
+        }
+    
+    // Función para crear el archivo pass.json
+    func createPassJSON(stamps: Int, nextAppointment: String) -> Data? {
+        let passData: [String: Any] = [
+            "formatVersion": 1,
+              "passTypeIdentifier": "pass.com.paretsdesign.hacksfornails", // Asegúrate de que coincide exactamente con tu certificado
+              "serialNumber": "1234567890",
+              "teamIdentifier": "H86KV5J4UN", // Asegúrate de que coincide exactamente con tu equipo
+              "organizationName": "B e a u t y  H a c k s",
+              "description": "Tarjeta Cliente",
+              "logoText": "H A C K S",
+              "foregroundColor": "rgb(255, 255, 255)",
+              "backgroundColor": "rgb(0, 0, 0)",
+            "barcode": [
+                "message": "1234567890",
+                "format": "PKBarcodeFormatQR",
+                "messageEncoding": "iso-8859-1"
+            ],
+            "storeCard": [
+                    "headerFields": [
+                        [
+                            "key": "header",
+                            "label": "",
+                            "value": "BEAUTY HACKS"
+                        ]
+                    ],
+                    "primaryFields": [
+                        
+                    ],
+                    "secondaryFields": [
+                        [
+                            "key": "nextAppointment",
+                            "label": "Próxima Cita",
+                            "value": "Próxima Cita"
+                        ]
+                    ],
+                    "auxiliaryFields" : [
+                          [
+                            "key" : "deal",
+                            "label" : "Deal of the Day",
+                            "value" : "\(nextAppointment)"
+                          ]
+                        ]
+                ]
+        ]
+        
+        // Convierte el diccionario en JSON data
+        return try? JSONSerialization.data(withJSONObject: passData, options: [])
+    }
+
+    // Función para cargar imágenes desde los recursos de la app
+    func loadImageData(imageName: String) -> Data? {
+        guard let image = UIImage(named: imageName) else {
+            print("Error: No se pudo encontrar la imagen \(imageName)")
+            return nil
+        }
+        guard let imageData = image.pngData() else {
+            print("Error: No se pudo convertir la imagen \(imageName) a PNG")
+            return nil
+        }
+        print("Imagen \(imageName) cargada correctamente")
+        return imageData
+    }
+
+    // Función para generar el hash SHA-1 de los archivos
+    func sha1Hash(data: Data) -> String {
+        // Array para almacenar el hash SHA-1 (20 bytes)
+        var hash = [UInt8](repeating: 0, count: Int(CC_SHA1_DIGEST_LENGTH))
+        
+        // Calcular el hash SHA-1
+        data.withUnsafeBytes {
+            _ = CC_SHA1($0.baseAddress, CC_LONG(data.count), &hash)
+        }
+        
+        // Convertir el hash en una cadena hexadecimal
+        return hash.map { String(format: "%02x", $0) }.joined()
+    }
+
+    // Función para enviar el manifest al servidor y recibir la firma
+    func signManifestOnServer(manifestData: Data, completion: @escaping (Data?) -> Void) {
+        print("Enviando manifest al servidor...")
+        let url = URL(string: "https://pass-signing-vercel.vercel.app/api/sign")! // Asegúrate de que esta URL es correcta
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        
+        // Configura la solicitud para enviar el archivo manifest como multipart/form-data
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        var body = Data()
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"manifest\"; filename=\"manifest.json\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: application/json\r\n\r\n".data(using: .utf8)!)
+        body.append(manifestData)
+        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+        
+        // Realiza la solicitud al servidor Vercel
+        URLSession.shared.uploadTask(with: request, from: body) { data, response, error in
+            if let error = error {
+                print("Error al enviar el manifest: \(error.localizedDescription)")
+                completion(nil)
+                return
+            }
+            
+            // Imprimir la respuesta HTTP
+            if let httpResponse = response as? HTTPURLResponse {
+                print("Código de respuesta del servidor: \(httpResponse.statusCode)")
+                print("Headers de respuesta: \(httpResponse.allHeaderFields)")
+            }
+            
+            // Verificar los datos recibidos
+            if let data = data {
+                print("Datos recibidos del servidor: \(data)")
+                // Si quieres ver el contenido en formato hexadecimal
+                print("Firma recibida en hexadecimal: \(data.map { String(format: "%02x", $0) }.joined())")
+            } else {
+                print("No se recibieron datos del servidor.")
+            }
+            
+            // Devuelve la firma recibida del servidor
+            completion(data)
+        }.resume()
+    }
+
+    // Función para crear el archivo .pkpass
+    func createPassPackage(passJSON: Data, manifestData: Data, signature: Data, images: [String: Data]) -> Data? {
+        // Crear un directorio temporal para almacenar los archivos del pase
+        let fileManager = FileManager.default
+        let tempDirectoryURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        
+        do {
+            // Crear la carpeta temporal
+            try fileManager.createDirectory(at: tempDirectoryURL, withIntermediateDirectories: true, attributes: nil)
+            
+            // Guardar pass.json
+            let passJSONURL = tempDirectoryURL.appendingPathComponent("pass.json")
+            try passJSON.write(to: passJSONURL)
+            
+            // Guardar manifest.json
+            let manifestURL = tempDirectoryURL.appendingPathComponent("manifest.json")
+            try manifestData.write(to: manifestURL)
+            
+            // Guardar la signature
+            let signatureURL = tempDirectoryURL.appendingPathComponent("signature")
+            try signature.write(to: signatureURL)
+            
+            // Guardar las imágenes
+            for (fileName, imageData) in images {
+                let imageURL = tempDirectoryURL.appendingPathComponent(fileName)
+                try imageData.write(to: imageURL)
+            }
+            
+            // Comprimir todos los archivos en un .pkpass
+            let passZipURL = tempDirectoryURL.appendingPathComponent("pass.pkpass")
+            try Zip.zipFiles(paths: [passJSONURL, manifestURL, signatureURL] + images.map { tempDirectoryURL.appendingPathComponent($0.key) }, zipFilePath: passZipURL, password: nil, progress: nil)
+            
+            // Leer el archivo .pkpass generado
+            let passData = try Data(contentsOf: passZipURL)
+            return passData
+            
+        } catch {
+            print("Error al crear el pase: \(error.localizedDescription)")
+            return nil
+        }
+    }
+
+    // Función para presentar el pase en Wallet
+    func presentPassToWallet(passPackage: Data?) {
+        guard let passPackage = passPackage else {
+            print("Error: No se ha podido crear el archivo .pkpass")
+            return
+        }
+        
+        // Guardar el pase para análisis
+        let fileManager = FileManager.default
+        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let passURL = documentsURL.appendingPathComponent("testPass.pkpass")
+        
+        do {
+            try passPackage.write(to: passURL)
+            print("Pase guardado en: \(passURL.path)")
+        } catch {
+            print("Error al guardar el pase: \(error.localizedDescription)")
+        }
+        
+        // Presentar el pase en Wallet
+        do {
+            let pass = try PKPass(data: passPackage)
+            let addPassesViewController = PKAddPassesViewController(pass: pass)
+            
+            if let addPassesViewController = addPassesViewController {
+                DispatchQueue.main.async {
+                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                           let rootVC = windowScene.windows.first?.rootViewController {
+                            rootVC.present(addPassesViewController, animated: true, completion: nil)
+                        }
+                    }
+            } else {
+                print("Error: No se pudo crear el PKAddPassesViewController.")
+            }
+            
+        } catch {
+            print("Error al presentar el pase: \(error.localizedDescription)")
+        }
+    }
+
     
     func uploadImage() {
         guard let imageData = selectedImageData, let userID = currentUser?.id else { return }
