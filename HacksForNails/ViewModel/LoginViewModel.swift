@@ -107,8 +107,8 @@ class LoginViewModel:ObservableObject {
                 "email": user.email,
                 "fullName": user.fullName,
                 "role": user.role,
-                "phone": user.phone,
-                "profileImage": user.profileImage
+                "phone": user.phone ?? "",
+                "profileImage": user.profileImage ?? ""
             ]
             UserDefaults.standard.set(userData, forKey: "currentUser")
         }

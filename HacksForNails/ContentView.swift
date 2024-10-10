@@ -34,6 +34,7 @@ struct ContentView: View {
         .onAppear {
             // Verificar el estado del usuario al iniciar la aplicación
             loginModel.checkUserStatus()
+            //loginModel.logout()
         }
     }
 }
