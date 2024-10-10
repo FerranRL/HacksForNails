@@ -206,7 +206,7 @@ class LoginViewModel:ObservableObject {
             let storageRef = Storage.storage().reference(forURL: urlString)
             
             storageRef.getData(maxSize: 5 * 1024 * 1024) { data, error in
-                if let error = error {
+                if error != nil {
                     
                     completion(nil)
                 } else if let data = data {
@@ -262,53 +262,56 @@ class LoginViewModel:ObservableObject {
         UIApplication.shared.closeKeyboard()
         Task {
             do {
+                // Obtener credenciales y autenticar al usuario
                 let credential = PhoneAuthProvider.provider().credential(withVerificationID: CLIENT_CODE, verificationCode: otpCode)
                 let authResult = try await Auth.auth().signIn(with: credential)
-                
                 let firebaseUser = authResult.user
-                
                 let userIdentifier = firebaseUser.uid
                 let userDocument = Firestore.firestore().collection("users").document(userIdentifier)
                 
-                userDocument.getDocument { (document, error) in
-                    if let document = document, document.exists {
-                        // Cargar los datos del usuario existente
-                        if let data = document.data(),
-                           let email = data["email"] as? String,
-                           let fullName = data["fullname"] as? String,
-                           let role = data["role"] as? String,
-                           let phone = data["phoneNumber"] as? String,
-                           let userImage = data["profilePhoto"] as? String
-                        {
+                // Obtener el documento de usuario usando async/await
+                let documentSnapshot = try await userDocument.getDocument()
+                
+                if documentSnapshot.exists {
+                    // Cargar los datos del usuario existente
+                    if let data = documentSnapshot.data(),
+                       let email = data["email"] as? String,
+                       let fullName = data["fullname"] as? String,
+                       let role = data["role"] as? String,
+                       let phone = data["phoneNumber"] as? String,
+                       let userImage = data["profilePhoto"] as? String {
+                        // Actualizar el usuario actual
+                        DispatchQueue.main.async {
                             self.currentUser = User(id: userIdentifier, email: email, fullName: fullName, role: role, phone: phone, profileImage: userImage)
-                            
                         }
-                    } else {
-                        // Crear nuevos datos del usuario
-                        let userData: [String: Any] = [
-                            "userID": userIdentifier,
-                            "phoneNumber": self.mobileNo,
-                            "role": "client"
-                        ]
-                        userDocument.setData(userData, merge: true) { (error) in
-                            if let error = error {
-                                self.showError("DEBUG: Error writing user data to Firestore: \(error.localizedDescription)")
-                            } else {
-                                
-                                self.showAdditionalInfoForm = true
-                                // Crear el objeto User
-                                self.currentUser = User(id: userIdentifier, email: "", fullName: "", role: "client", phone: self.mobileNo, profileImage: "")
-                            }
-                        }
+                       
                     }
-                    DispatchQueue.main.async {
-                        withAnimation(.easeInOut) {
-                            self.logStatus = true
-                        }
+                } else {
+                    // Crear nuevos datos del usuario
+                    let userData: [String: Any] = [
+                        "userID": userIdentifier,
+                        "phoneNumber": self.mobileNo,
+                        "role": "client"
+                    ]
+                    // Guardar los nuevos datos del usuario en Firestore
+                    try await userDocument.setData(userData, merge: true)
+                    
+                    // Mostrar formulario adicional
+                    self.showAdditionalInfoForm = true
+                    
+                    // Crear el objeto User
+                    self.currentUser = User(id: userIdentifier, email: "", fullName: "", role: "client", phone: self.mobileNo, profileImage: "")
+                }
+                
+                // Actualizar el estado de inicio de sesión en la interfaz de usuario
+                DispatchQueue.main.async {
+                    withAnimation(.easeInOut) {
+                        self.logStatus = true
                     }
                 }
                 
             } catch {
+                // Manejo de errores
                 await handleError(error: error)
             }
         }
@@ -362,61 +365,60 @@ class LoginViewModel:ObservableObject {
         Task {
             do {
                 let authResult = try await Auth.auth().signIn(with: credential)
-                
                 let firebaseUser = authResult.user
-                
                 let userIdentifier = firebaseUser.uid
                 let email = user.profile?.email
                 let fullName = user.profile?.name
                 let userDocument = Firestore.firestore().collection("users").document(userIdentifier)
-                userDocument.getDocument { (document, error) in
-                    if let document = document, document.exists {
-                        // Cargar los datos del usuario existente
 
-                        if let data = document.data(){
-                            let email = data["email"] as? String ?? ""
-                            let fullName = data["fullname"] as? String ?? ""
-                            let role = data["role"] as? String ?? ""
-                            let phone = data["phoneNumber"] as? String ?? ""
-                            let userImage = data["profilePhoto"] as? String
-                            self.currentUser = User(id: userIdentifier, email: email, fullName: fullName, role: role, phone: phone, profileImage: userImage)
-                            DispatchQueue.main.async {
-                                withAnimation(.easeInOut) {
-                                    self.logStatus = true
-                                }
-                            }
-                            
-                            
-                        }
-                    } else {
-                        // Document does not exist, create it with the available data
-                        var userData: [String: Any] = ["userID": userIdentifier]
-                        if let email = email {
-                            userData["email"] = email
-                        }
-                        if let fullName = fullName {
-                            userData["fullname"] = fullName
-                        }
-                        userData["role"] = "client"
+                // Obtener el documento de usuario usando async/await
+                let documentSnapshot = try await userDocument.getDocument()
+                
+                if documentSnapshot.exists {
+                    // Cargar los datos del usuario existente
+                    if let data = documentSnapshot.data() {
+                        let email = data["email"] as? String ?? ""
+                        let fullName = data["fullname"] as? String ?? ""
+                        let role = data["role"] as? String ?? ""
+                        let phone = data["phoneNumber"] as? String ?? ""
+                        let userImage = data["profilePhoto"] as? String
                         
-                        userDocument.setData(userData, merge: true) { (error) in
-                            if let error = error {
-                                self.showError("DEBUG: Error writing user data to Firestore: \(error.localizedDescription)")
-                            } else {
-                                
-                                self.showPhoneNumberForm = true
-                                // Crear el objeto User
-                                self.currentUser = User(id: userIdentifier, email: email ?? "", fullName: fullName ?? "", role: "client", phone: "", profileImage: "")
-                                DispatchQueue.main.async {
-                                    withAnimation(.easeInOut) {
-                                        self.logStatus = true
-                                    }
-                                }
+                        DispatchQueue.main.async {
+                            self.currentUser = User(id: userIdentifier, email: email, fullName: fullName, role: role, phone: phone, profileImage: userImage)
+                            
+                            withAnimation(.easeInOut) {
+                                self.logStatus = true
                             }
+                        }
+                        
+                    }
+                } else {
+                    // Si el documento no existe, crearlo con los datos disponibles
+                    var userData: [String: Any] = ["userID": userIdentifier]
+                    if let email = email {
+                        userData["email"] = email
+                    }
+                    if let fullName = fullName {
+                        userData["fullname"] = fullName
+                    }
+                    userData["role"] = "client"
+                    
+                    // Guardar los nuevos datos del usuario en Firestore
+                    try await userDocument.setData(userData, merge: true)
+                    
+                    // Mostrar formulario de número de teléfono y crear objeto User
+                    self.showPhoneNumberForm = true
+                    self.currentUser = User(id: userIdentifier, email: email ?? "", fullName: fullName ?? "", role: "client", phone: "", profileImage: "")
+                    
+                    DispatchQueue.main.async {
+                        withAnimation(.easeInOut) {
+                            self.logStatus = true
                         }
                     }
                 }
+                
             } catch {
+                // Manejo de errores
                 await handleError(error: error)
             }
         }

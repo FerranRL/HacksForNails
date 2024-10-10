@@ -17,6 +17,7 @@ class AppDelegateBridge: NSObject, UIApplicationDelegate {
     }
     
     // MARK: Phone auth needs to initialize remote notifications
+    @MainActor
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any]) async -> UIBackgroundFetchResult {
         return .noData
     }

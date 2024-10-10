@@ -29,8 +29,15 @@ struct ExcelUploaderView: UIViewControllerRepresentable {
         func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
             guard let url = urls.first else { return }
             
-            url.startAccessingSecurityScopedResource()
-            defer { url.stopAccessingSecurityScopedResource() }
+            guard url.startAccessingSecurityScopedResource() else {
+                print("No se pudo acceder al recurso de forma segura.")
+                return
+            }
+                        
+            defer {
+                // Asegúrate de detener el acceso cuando termines
+                url.stopAccessingSecurityScopedResource()
+            }
             
             do {
                 let fileData = try Data(contentsOf: url)
