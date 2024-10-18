@@ -10,145 +10,164 @@ import SwiftUI
 struct DashboardView: View {
     @EnvironmentObject var loginModel: LoginViewModel
     @State private var showMenu: Bool = false
+    @State private var navigationPath: [NavigationDestination] = []
 
     var body: some View {
         // Integración del AnimatedSideBar
-        AnimatedSideBar(
-            rotatesWhenExpands: true,
-            disablesInteraction: true,
-            sideMenuWith: 200,
-            cornerRadius: 25,
-            showMenu: $showMenu
-        ) { safeArea in
-            GeometryReader { geometry in
-                ZStack {
-                    // Fondo de imagen
-                    Image("bg2")
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: geometry.size.width, height: geometry.size.height)
-                        .ignoresSafeArea()
-                        .opacity(0.5)
-
-                    // Contenido principal
-                    VStack(spacing: 20) {
-                        // Título del Dashboard y Botón de Logout
-                        HStack {
-                            Button {
-                                showMenu.toggle()
-                            } label: {
-                                Image(systemName: showMenu ? "xmark.circle.fill" : "line.horizontal.3")
-                                    .font(.system(size: 30))
-                                    .foregroundStyle(.white)
-                                    .contentTransition(.symbolEffect)
-                            }
-                            .padding(.top, 2)
-
-                            Text("Dashboard")
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                            Spacer()
-                            Image(systemName: "bell")
-                                .foregroundColor(.white)
-
-                            // Botón de Logout
-                            Button(action: {
-                                //loginModel.signOut()
-                            }) {
-                                Image(systemName: "person.circle")
-                                    .foregroundColor(.white)
+        NavigationStack(path: $navigationPath) {
+            AnimatedSideBar(
+                rotatesWhenExpands: true,
+                disablesInteraction: true,
+                sideMenuWith: 200,
+                cornerRadius: 25,
+                showMenu: $showMenu
+            ) { safeArea in
+                GeometryReader { geometry in
+                    ZStack {
+                        // Fondo de imagen
+                        Image("bg2")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: geometry.size.width, height: geometry.size.height)
+                            .ignoresSafeArea()
+                            .opacity(0.5)
+                        
+                        // Contenido principal
+                        VStack(spacing: 20) {
+                            // Título del Dashboard y Botón de Logout
+                            HStack {
+                                Button {
+                                    showMenu.toggle()
+                                } label: {
+                                    Image(systemName: showMenu ? "xmark.circle.fill" : "line.horizontal.3")
+                                        .font(.system(size: 30))
+                                        .foregroundStyle(.white)
+                                        .contentTransition(.symbolEffect)
+                                }
+                                .padding(.top, 2)
+                                
+                                Text("Dashboard")
                                     .font(.title)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Image(systemName: "bell")
+                                    .foregroundColor(.white)
+                                
+                                // Botón de Logout
+                                Button(action: {
+                                    //loginModel.signOut()
+                                }) {
+                                    Image(systemName: "person.circle")
+                                        .foregroundColor(.white)
+                                        .font(.title)
+                                }
+                                .padding()
                             }
-                            .padding()
-                        }
-                        .padding(.top, 40)
-                        .padding(.horizontal)
-                        .background(Color.black.opacity(0.7))
-
-                        // Resto del contenido del dashboard
-                        ScrollView {
-                            VStack(spacing: 20) {
-                                HStack(spacing: 6) {
-                                    Spacer()
-                                    SummaryCardView(title: "Clientes", count: "1000")
-                                    SummaryCardView(title: "Servicios", count: "56")
-                                    SummaryCardView(title: "Citas", count: "900")
-                                    Spacer()
+                            .padding(.top, 40)
+                            .padding(.horizontal)
+                            .background(Color.black.opacity(0.7))
+                            
+                            // Resto del contenido del dashboard
+                            ScrollView {
+                                VStack(spacing: 20) {
+                                    HStack(spacing: 6) {
+                                        Spacer()
+                                        SummaryCardView(title: "Clientes", count: "1000")
+                                        SummaryCardView(title: "Servicios", count: "56")
+                                        SummaryCardView(title: "Citas", count: "900")
+                                        Spacer()
+                                    }
+                                    .padding(.horizontal)
+                                    
+                                    // Gráficas y Vistas adicionales
+                                    ChartCardView(title: "Género", chartType: .pie)
+                                        .frame(width: geometry.size.width - 40)
+                                    ChartCardView(title: "Citas por horas", chartType: .bar)
+                                        .frame(width: geometry.size.width - 40)
+                                    UpcomingAppointmentsView()
+                                        .frame(width: geometry.size.width - 40)
+                                    FinancialTargetView()
+                                        .frame(width: geometry.size.width - 40)
+                                    
+                                    Spacer(minLength: 20)
                                 }
                                 .padding(.horizontal)
-
-                                // Gráficas y Vistas adicionales
-                                ChartCardView(title: "Género", chartType: .pie)
-                                    .frame(width: geometry.size.width - 40)
-                                ChartCardView(title: "Citas por horas", chartType: .bar)
-                                    .frame(width: geometry.size.width - 40)
-                                UpcomingAppointmentsView()
-                                    .frame(width: geometry.size.width - 40)
-                                FinancialTargetView()
-                                    .frame(width: geometry.size.width - 40)
-
-                                Spacer(minLength: 20)
                             }
-                            .padding(.horizontal)
                         }
                     }
+                    .background(Color.black)
                 }
-                .background(Color.black)
+            } menuView: { safeArea in
+                SideBarMenuView(safeArea)
+            } background: {
+                Rectangle()
+                    .foregroundStyle(.gray)
             }
-        } menuView: { safeArea in
-            SideBarMenuView(safeArea)
-        } background: {
-            Rectangle()
-                .foregroundStyle(.gray)
+            .navigationDestination(for: NavigationDestination.self) { destination in
+                switch destination {
+                case .clientes:
+                    AdminPanelView()
+                }
+            }
         }
+        .navigationViewStyle(StackNavigationViewStyle())
+        .background(Color.black)
     }
 
     @ViewBuilder
     func SideBarMenuView(_ safeArea: UIEdgeInsets) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
+        NavigationView {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Spacer(minLength: 0)
+                    Image("logo black")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 110, height: 110)
+                    Spacer(minLength: 0)
+                }
+                Divider()
+                    .frame(height: 1)
+                    .background(.white)
+                    .padding(.vertical, 10)
+                
+                SideBarButton(.vista)
+                SideBarButton(.citas)
+                SideBarButton(.clientes)
+                SideBarButton(.estilistas)
+                SideBarButton(.mensajes)
+                SideBarButton(.reseñas)
+                SideBarButton(.contabilidad)
+                SideBarButton(.ajustes)
+                
+                
                 Spacer(minLength: 0)
-                Image("logo black")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 110, height: 110)
-                Spacer(minLength: 0)
+                
+                SideBarButton(.logout) {
+                    loginModel.logout()
+                }
             }
-            Divider()
-                .frame(height: 1)
-                .background(.white)
-                .padding(.vertical, 10)
-
-            SideBarButton(.vista)
-            SideBarButton(.citas)
-            SideBarButton(.clientes)
-            SideBarButton(.estilistas)
-            SideBarButton(.mensajes)
-            SideBarButton(.reseñas)
-            SideBarButton(.contabilidad)
-            SideBarButton(.ajustes)
-            
-
-            Spacer(minLength: 0)
-
-            SideBarButton(.logout) {
-                loginModel.logout()
-            }
+            .padding(.horizontal, 15)
+            .padding(.vertical, 20)
+            .padding(.top, safeArea.top)
+            .padding(.bottom, safeArea.bottom)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .background(Color.black)
         }
-        .padding(.horizontal, 15)
-        .padding(.vertical, 20)
-        .padding(.top, safeArea.top)
-        .padding(.bottom, safeArea.bottom)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
     @ViewBuilder
     func SideBarButton(_ tab: DashboardView.dash, onTap: @escaping () -> () = { }) -> some View {
         Button(action: {
-            if tab == .ajustes {
+            
+            switch tab {
+            case .ajustes:
                 showMenu = false
-            } else {
+            case .clientes:
+                navigationPath.append(.clientes)
+                showMenu = false
+            default:
                 onTap()
             }
         }) {
@@ -191,6 +210,9 @@ struct DashboardView: View {
             case .logout: return "Cerrar sesión"
             }
         }
+    }
+    enum NavigationDestination: Hashable {
+        case clientes
     }
 }
 
