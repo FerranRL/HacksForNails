@@ -123,19 +123,7 @@ struct Home: View {
                                     .padding(.horizontal)
                                 
                                 // Carrusel de ServiceCard
-                                ScrollView(.horizontal, showsIndicators: false) {
-                                    HStack(spacing: 20) {
-                                        ForEach(serviceViewModel.servicesByCategory[segmentedTags[selectedIndex]] ?? [], id: \.title) { service in
-                                            ServiceCard(
-                                                imageName: service.imageName,
-                                                title: service.title,
-                                                price: service.price
-                                            )
-                                            .frame(width: 300)
-                                        }
-                                    }
-                                    .padding(.horizontal)
-                                }
+                                serviceCarousel()
                             }
                         }
                         .padding(.top, 80)
@@ -159,6 +147,30 @@ struct Home: View {
                     ProfileView()
                 }
             }
+        }
+    }
+    
+    // Función que genera el carrusel de servicios
+    @ViewBuilder
+    func serviceCarousel() -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 20) {
+                // Extraer los servicios de la categoría seleccionada
+                if let services = serviceViewModel.servicesByCategory[segmentedTags[selectedIndex]] {
+                    ForEach(services, id: \.id) { service in
+                        ServiceCard(
+                            imageName: service.imageURL ?? "placeholder",
+                            title: service.title,
+                            price: "\(service.price)"
+                        )
+                        .frame(width: 300)
+                    }
+                } else {
+                    Text("No hay servicios disponibles")
+                        .foregroundColor(.white)
+                }
+            }
+            .padding(.horizontal)
         }
     }
     
@@ -245,11 +257,13 @@ struct Home: View {
 }
 
 // Estructura para los datos del servicio
-struct ServiceData {
-    let imageName: String
-    let title: String
-    let price: String
-    let descripcion: String
-    let categorias: [String]  // Las categorías serán un array de strings
+struct ServiceData: Identifiable {
+    let id: String
+    var imageURL: String?
+    var title: String
+    var price: Double
+    var duracion: Int
+    var descripcion: String
+    var categorias: [String]  // Las categorías serán un array de strings
 }
 

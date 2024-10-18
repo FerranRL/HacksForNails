@@ -45,6 +45,8 @@
 		7A7FFFD02C944B7A00A47013 /* Zip in Frameworks */ = {isa = PBXBuildFile; productRef = 7A7FFFCF2C944B7A00A47013 /* Zip */; };
 		7AC4C8B72CB847CE00B98E48 /* ServiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC4C8B62CB847CE00B98E48 /* ServiceView.swift */; };
 		7AC4C8B92CBD277900B98E48 /* ServiceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC4C8B82CBD277900B98E48 /* ServiceViewModel.swift */; };
+		7AC4C8BB2CC2AC2900B98E48 /* ServiceManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC4C8BA2CC2AC2900B98E48 /* ServiceManagementView.swift */; };
+		7AC4C8BD2CC2AED800B98E48 /* ServiceManagementModelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC4C8BC2CC2AEC600B98E48 /* ServiceManagementModelView.swift */; };
 		7AC7C76E2CA2F896001727EF /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC7C76D2CA2F896001727EF /* LoadingView.swift */; };
 		7AE9D3C92C89DF700066A958 /* AdminPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE9D3C82C89DF700066A958 /* AdminPanelView.swift */; };
 		7AE9D3CB2C89DFB00066A958 /* ExcelUploaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE9D3CA2C89DFB00066A958 /* ExcelUploaderView.swift */; };
@@ -89,6 +91,8 @@
 		7A7FFFCC2C94369500A47013 /* CreatePass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePass.swift; sourceTree = "<group>"; };
 		7AC4C8B62CB847CE00B98E48 /* ServiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceView.swift; sourceTree = "<group>"; };
 		7AC4C8B82CBD277900B98E48 /* ServiceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceViewModel.swift; sourceTree = "<group>"; };
+		7AC4C8BA2CC2AC2900B98E48 /* ServiceManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceManagementView.swift; sourceTree = "<group>"; };
+		7AC4C8BC2CC2AEC600B98E48 /* ServiceManagementModelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceManagementModelView.swift; sourceTree = "<group>"; };
 		7AC7C76D2CA2F896001727EF /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		7AE9D3C82C89DF700066A958 /* AdminPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminPanelView.swift; sourceTree = "<group>"; };
 		7AE9D3CA2C89DFB00066A958 /* ExcelUploaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExcelUploaderView.swift; sourceTree = "<group>"; };
@@ -177,6 +181,7 @@
 				7A6679CC2C8F3C1C00735467 /* StylistView.swift */,
 				7AC7C76D2CA2F896001727EF /* LoadingView.swift */,
 				7AC4C8B62CB847CE00B98E48 /* ServiceView.swift */,
+				7AC4C8BA2CC2AC2900B98E48 /* ServiceManagementView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -184,6 +189,7 @@
 		7A1EBC9E2C20805B004B04C4 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				7AC4C8BC2CC2AEC600B98E48 /* ServiceManagementModelView.swift */,
 				7A7FFFC12C92E63200A47013 /* AppointmentViewModel.swift */,
 				7A7A5AE82C2AC6D6009B61B6 /* Variables.swift */,
 				7A21FE082C246D2E00D8990B /* LoginViewModel.swift */,
@@ -351,6 +357,7 @@
 				7A7FFFC22C92E63200A47013 /* AppointmentViewModel.swift in Sources */,
 				7AC4C8B92CBD277900B98E48 /* ServiceViewModel.swift in Sources */,
 				7A58C2CF2C3D4EBA00EA135E /* EditProfileView.swift in Sources */,
+				7AC4C8BD2CC2AED800B98E48 /* ServiceManagementModelView.swift in Sources */,
 				7A7FFFCD2C94369F00A47013 /* CreatePass.swift in Sources */,
 				7A21FDF32C21D75100D8990B /* Login.swift in Sources */,
 				7AE9D3CB2C89DFB00066A958 /* ExcelUploaderView.swift in Sources */,
@@ -379,6 +386,7 @@
 				7A7FFFBC2C9037D200A47013 /* AppointmentView.swift in Sources */,
 				7A44FD0A2C3936BC007CF827 /* DataRequestView.swift in Sources */,
 				7A21FE0B2C247D3300D8990B /* UIApplication+Extension.swift in Sources */,
+				7AC4C8BB2CC2AC2900B98E48 /* ServiceManagementView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

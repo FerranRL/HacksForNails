@@ -9,6 +9,7 @@ import SwiftUI
 
 struct DashboardView: View {
     @EnvironmentObject var loginModel: LoginViewModel
+    @StateObject var serviceManagementModel = ServiceManagementModelView()
     @State private var showMenu: Bool = false
     @State private var navigationPath: [NavigationDestination] = []
 
@@ -108,7 +109,10 @@ struct DashboardView: View {
                 switch destination {
                 case .clientes:
                     AdminPanelView()
+                case .servicios:
+                    ServiceManagementView()
                 }
+            
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
@@ -137,7 +141,7 @@ struct DashboardView: View {
                 SideBarButton(.clientes)
                 SideBarButton(.estilistas)
                 SideBarButton(.mensajes)
-                SideBarButton(.reseñas)
+                SideBarButton(.servicios)
                 SideBarButton(.contabilidad)
                 SideBarButton(.ajustes)
                 
@@ -167,6 +171,9 @@ struct DashboardView: View {
             case .clientes:
                 navigationPath.append(.clientes)
                 showMenu = false
+            case .servicios:
+                navigationPath.append(.servicios)
+                showMenu = false
             default:
                 onTap()
             }
@@ -192,7 +199,7 @@ struct DashboardView: View {
         case clientes = "person.fill"
         case estilistas = "person.crop.circle.fill"
         case mensajes = "mail.stack.fill"
-        case reseñas = "star.leadinghalf.filled"
+        case servicios = "star.leadinghalf.filled"
         case contabilidad = "creditcard.fill"
         case ajustes = "gear"
         case logout = "rectangle.portrait.and.arrow.right"
@@ -204,7 +211,7 @@ struct DashboardView: View {
             case .clientes: return "Clientes"
             case .estilistas: return "Estilistas"
             case .mensajes: return "Mensajes"
-            case .reseñas: return "Reseñas"
+            case .servicios: return "Servicios"
             case .contabilidad: return "Contabilidad"
             case .ajustes: return "Ajustes"
             case .logout: return "Cerrar sesión"
@@ -213,6 +220,7 @@ struct DashboardView: View {
     }
     enum NavigationDestination: Hashable {
         case clientes
+        case servicios
     }
 }
 

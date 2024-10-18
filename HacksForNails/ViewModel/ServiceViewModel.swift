@@ -44,20 +44,25 @@ class ServiceViewModel: ObservableObject {
                 guard let title = data["tratamiento"] as? String,
                       let price = data["precio"] as? Double,
                       let descripcion = data["descripcion"] as? String,
-                      let categorias = data["categorias"] as? [String] else {
+                      let categorias = data["categorias"] as? [String],
+                      let duracion = data["duracion"] as? Int else {
                     continue
                 }
                 
+                let imageURL = data["imageURL"] as? String  // Imagen puede ser nil si no existe en Firebase
+
                 // Crear un objeto ServiceData para cada documento
                 let service = ServiceData(
-                    imageName: "placeholder",  // Ajustar esto si tienes imágenes específicas
+                    id: document.documentID,  // Usamos el documentID como identificador único
+                    imageURL: imageURL,
                     title: title,
-                    price: String(format: "%.2f€", price),
+                    price: price,
+                    duracion: duracion,
                     descripcion: descripcion,
                     categorias: categorias
                 )
                 
-                
+                // Mapear categorías
                 for categoria in categorias {
                     let mappedCategory = self.categoryMapping[categoria] ?? categoria
                     
@@ -68,6 +73,7 @@ class ServiceViewModel: ObservableObject {
                 }
             }
             
+            // Actualizar la propiedad publicada en el hilo principal
             DispatchQueue.main.async {
                 self.servicesByCategory = servicesByCategoryTemp
             }
