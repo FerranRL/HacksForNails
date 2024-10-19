@@ -35,10 +35,8 @@ struct ServiceCard: View {
                             .frame(width: 315, height: 487)
                             .clipShape(RoundedRectangle(cornerRadius: 15))
                             .onAppear {
-                                // Capturamos los datos de la imagen descargada
-                                if let data = try? Data(contentsOf: url) {
-                                    preloadedImage = UIImage(data: data)
-                                }
+                                // Descargar la imagen de manera asíncrona
+                                downloadImage(from: url)
                             }
                     case .failure:
                         Image("placeholder")
@@ -113,6 +111,19 @@ struct ServiceCard: View {
                 .stroke(Color.white.opacity(0.1), lineWidth: 1)
         )
         .shadow(radius: 3)
+    }
+
+    // Función para descargar la imagen de manera asíncrona usando URLSession
+    private func downloadImage(from url: URL) {
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let data = data, let image = UIImage(data: data) {
+                DispatchQueue.main.async {
+                    self.preloadedImage = image  // Actualizar la imagen en el hilo principal
+                }
+            } else {
+                print("Error al descargar la imagen: \(error?.localizedDescription ?? "Desconocido")")
+            }
+        }.resume()
     }
 
     func formattedPrice(_ price: Double) -> String {
