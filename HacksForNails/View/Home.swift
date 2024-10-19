@@ -158,11 +158,7 @@ struct Home: View {
                 // Extraer los servicios de la categoría seleccionada
                 if let services = serviceViewModel.servicesByCategory[segmentedTags[selectedIndex]] {
                     ForEach(services, id: \.id) { service in
-                        ServiceCard(
-                            imageName: service.imageURL ?? "placeholder",
-                            title: service.title,
-                            price: "\(service.price)"
-                        )
+                        ServiceCard(service: service)
                         .frame(width: 300)
                     }
                 } else {

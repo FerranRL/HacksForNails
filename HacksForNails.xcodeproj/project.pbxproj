@@ -47,6 +47,7 @@
 		7AC4C8B92CBD277900B98E48 /* ServiceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC4C8B82CBD277900B98E48 /* ServiceViewModel.swift */; };
 		7AC4C8BB2CC2AC2900B98E48 /* ServiceManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC4C8BA2CC2AC2900B98E48 /* ServiceManagementView.swift */; };
 		7AC4C8BD2CC2AED800B98E48 /* ServiceManagementModelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC4C8BC2CC2AEC600B98E48 /* ServiceManagementModelView.swift */; };
+		7AC4C8C12CC3A9AC00B98E48 /* ServiceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC4C8C02CC3A99F00B98E48 /* ServiceDetailView.swift */; };
 		7AC7C76E2CA2F896001727EF /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC7C76D2CA2F896001727EF /* LoadingView.swift */; };
 		7AE9D3C92C89DF700066A958 /* AdminPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE9D3C82C89DF700066A958 /* AdminPanelView.swift */; };
 		7AE9D3CB2C89DFB00066A958 /* ExcelUploaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE9D3CA2C89DFB00066A958 /* ExcelUploaderView.swift */; };
@@ -93,6 +94,7 @@
 		7AC4C8B82CBD277900B98E48 /* ServiceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceViewModel.swift; sourceTree = "<group>"; };
 		7AC4C8BA2CC2AC2900B98E48 /* ServiceManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceManagementView.swift; sourceTree = "<group>"; };
 		7AC4C8BC2CC2AEC600B98E48 /* ServiceManagementModelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceManagementModelView.swift; sourceTree = "<group>"; };
+		7AC4C8C02CC3A99F00B98E48 /* ServiceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceDetailView.swift; sourceTree = "<group>"; };
 		7AC7C76D2CA2F896001727EF /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		7AE9D3C82C89DF700066A958 /* AdminPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminPanelView.swift; sourceTree = "<group>"; };
 		7AE9D3CA2C89DFB00066A958 /* ExcelUploaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExcelUploaderView.swift; sourceTree = "<group>"; };
@@ -170,6 +172,7 @@
 		7A1EBC9B2C207E50004B04C4 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				7AC4C8C02CC3A99F00B98E48 /* ServiceDetailView.swift */,
 				7A21FDF22C21D75100D8990B /* Login.swift */,
 				7A7A5AEA2C2ACF08009B61B6 /* Home.swift */,
 				7A71BD3C2C38321E0075FDFA /* ProfileView.swift */,
@@ -361,6 +364,7 @@
 				7A7FFFCD2C94369F00A47013 /* CreatePass.swift in Sources */,
 				7A21FDF32C21D75100D8990B /* Login.swift in Sources */,
 				7AE9D3CB2C89DFB00066A958 /* ExcelUploaderView.swift in Sources */,
+				7AC4C8C12CC3A9AC00B98E48 /* ServiceDetailView.swift in Sources */,
 				7A7FFFBE2C92E4BF00A47013 /* Appointment.swift in Sources */,
 				7A71BD352C368FF90075FDFA /* AnimatedSideBar.swift in Sources */,
 				7A7FFFC42C942B7700A47013 /* Client.swift in Sources */,
