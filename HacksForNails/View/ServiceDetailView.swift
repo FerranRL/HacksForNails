@@ -101,6 +101,21 @@ struct ServiceDetailView: View {
                                             }
                                         }
                                         .padding(.horizontal)
+                                        
+                                        HStack {
+                                            Text("Selecciona fecha y hora")
+                                                .font(.body)
+                                                .bold()
+                                                .foregroundStyle(.white)
+                                            
+                                            Spacer()
+                                            
+                                        }
+                                        .padding(.horizontal)
+                                        .padding(.bottom, 10)
+                                        VStack(alignment: .leading) {
+                                            HorizontalDateTimePicker()
+                                        }
 
                                         Spacer()
                                     }

@@ -26,6 +26,7 @@
 		7A44FD0A2C3936BC007CF827 /* DataRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A44FD092C3936BC007CF827 /* DataRequestView.swift */; };
 		7A44FD0D2C393CC3007CF827 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A44FD0C2C393CBD007CF827 /* User.swift */; };
 		7A58C2CF2C3D4EBA00EA135E /* EditProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A58C2CE2C3D4EBA00EA135E /* EditProfileView.swift */; };
+		7A6194982CC7F2C000F59B60 /* HorizontalDateTimePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6194972CC7F2C000F59B60 /* HorizontalDateTimePicker.swift */; };
 		7A6679CD2C8F3C1C00735467 /* StylistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6679CC2C8F3C1C00735467 /* StylistView.swift */; };
 		7A68B3CB2C3582AB00A84CFE /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 7A68B3CA2C3582AB00A84CFE /* FirebaseFirestore */; };
 		7A71BD352C368FF90075FDFA /* AnimatedSideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A71BD342C368FF90075FDFA /* AnimatedSideBar.swift */; };
@@ -75,6 +76,7 @@
 		7A44FD092C3936BC007CF827 /* DataRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataRequestView.swift; sourceTree = "<group>"; };
 		7A44FD0C2C393CBD007CF827 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		7A58C2CE2C3D4EBA00EA135E /* EditProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileView.swift; sourceTree = "<group>"; };
+		7A6194972CC7F2C000F59B60 /* HorizontalDateTimePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalDateTimePicker.swift; sourceTree = "<group>"; };
 		7A6679CC2C8F3C1C00735467 /* StylistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StylistView.swift; sourceTree = "<group>"; };
 		7A71BD342C368FF90075FDFA /* AnimatedSideBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedSideBar.swift; sourceTree = "<group>"; };
 		7A71BD362C37123C0075FDFA /* KeyboardResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardResponder.swift; sourceTree = "<group>"; };
@@ -247,6 +249,7 @@
 				7A7A5AEF2C2C478D009B61B6 /* CustomSegmented.swift */,
 				7A7A5AEC2C2C1C3A009B61B6 /* ServiceCard.swift */,
 				7A7FFFBB2C9037D200A47013 /* AppointmentView.swift */,
+				7A6194972CC7F2C000F59B60 /* HorizontalDateTimePicker.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -383,6 +386,7 @@
 				7A1EBC882C2078F8004B04C4 /* ContentView.swift in Sources */,
 				7A21FDFE2C24606000D8990B /* View+Extension.swift in Sources */,
 				7A71BD372C37123C0075FDFA /* KeyboardResponder.swift in Sources */,
+				7A6194982CC7F2C000F59B60 /* HorizontalDateTimePicker.swift in Sources */,
 				7A1EBC862C2078F8004B04C4 /* HacksForNailsApp.swift in Sources */,
 				7A7FFFCB2C9435A600A47013 /* CreatePassJSON.swift in Sources */,
 				7A71BD3D2C38321F0075FDFA /* ProfileView.swift in Sources */,
