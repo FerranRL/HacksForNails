@@ -1,119 +1,211 @@
-//
-//  ServiceDetailView.swift
-//  HacksForNails
-//
-//  Created by Ferran Rosales on 19/10/24.
-//
-
 import SwiftUI
 
 struct ServiceDetailView: View {
-    let service: ServiceData  // El servicio que se mostrará
-    let preloadedImage: UIImage?  // Imagen cargada previamente (opcional)
-    @State private var downloadedImage: UIImage? = nil  // Imagen descargada manualmente si es necesario
-    @State private var isLoading = true  // Estado para controlar el loader
-    
+    let service: ServiceData
+    let preloadedImage: UIImage?
+    @State private var downloadedImage: UIImage? = nil
+    @State private var isLoading = true
+    @Environment(\.presentationMode) var presentationMode
+    @State private var contentHeight: CGFloat = 0 // Variable para almacenar la altura del contenido
+
     var body: some View {
-        Group {
-            if isLoading {
-                // Mostrar el loader mientras se determina la imagen
-                VStack {
-                    ProgressView("Cargando...")
-                        .progressViewStyle(CircularProgressViewStyle())
-                        .font(.title2)
-                        .padding()
+        GeometryReader { geometry in
+            ZStack {
+                // Fondo de la pantalla
+                Color.black
+                    .ignoresSafeArea()
+
+                Group {
+                    if isLoading {
+                        VStack {
+                            ProgressView("Cargando...")
+                                .progressViewStyle(CircularProgressViewStyle())
+                                .font(.title2)
+                                .padding()
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        // Usamos GeometryReader dentro del ScrollView para medir el tamaño del contenido
+                        ScrollView(contentHeight > geometry.size.height ? .vertical : []) {
+                            VStack(spacing: 0) {
+                                ZStack(alignment: .topLeading) {
+                                    if let image = preloadedImage ?? downloadedImage {
+                                        Image(uiImage: image)
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: geometry.size.width, height: geometry.size.height * 3 / 4)
+                                            .clipped()
+                                            .ignoresSafeArea(edges: .top)
+                                    } else {
+                                        Image("placeholder")
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: geometry.size.width, height: geometry.size.height * 3 / 4)
+                                            .clipped()
+                                            .ignoresSafeArea(edges: .top)
+                                    }
+
+                                    // Degradado para mejorar la legibilidad del texto
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [Color.black.opacity(0), Color.black]),
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                    .frame(height: geometry.size.height * 3 / 4)
+                                    .ignoresSafeArea(edges: .top)
+
+                                    VStack(alignment: .leading, spacing: 16) {
+                                        Text(service.title)
+                                            .font(.largeTitle)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                            .padding(.horizontal)
+                                            .padding(.top, 20)
+                                        
+                                        Text(service.descripcion)
+                                            .font(.body)
+                                            .foregroundColor(.white)
+                                            .padding(.horizontal)
+                                            .padding(.bottom, 20)
+                                        
+                                        HStack {
+                                            Text("Duración \(service.duracion) minutos")
+                                                .foregroundColor(.gray)
+                                                .padding(.bottom, 20)
+                                            Spacer()
+                                        }
+                                        .font(.headline)
+                                        .padding(.horizontal)
+                                        
+                                        VStack(alignment: .leading, spacing: 16) {
+                                            Text("¿Quieres añadir algún complemento?")
+                                                .font(.body)
+                                                .bold()
+                                                .foregroundStyle(.white)
+                                            
+                                            HStack(spacing: 20) {
+                                                complementoButton(title: "Complemento 1")
+                                                complementoButton(title: "Complemento 2")
+                                                complementoButton(title: "Complemento 3")
+                                            }
+                                            
+                                            NavigationLink(destination: EmptyView()) {
+                                                Text("Selecciona estilista")
+                                                    .fontWeight(.light)
+                                                    .foregroundColor(.black)
+                                                    .frame(maxWidth: .infinity, minHeight: 45, maxHeight: 45)
+                                                    .background(
+                                                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                                            .fill(Color.white)
+                                                    )
+                                            }
+                                        }
+                                        .padding(.horizontal)
+
+                                        Spacer()
+                                    }
+                                    .padding(.top, 100)
+                                }
+                            }
+                            .background(GeometryReader { geo in
+                                Color.clear.onAppear {
+                                    self.contentHeight = geo.size.height // Obtenemos la altura del contenido
+                                }
+                            })
+                        }
+                        .ignoresSafeArea(edges: .top)
+                    }
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                // Mostrar la vista de detalles solo cuando la imagen esté lista
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        // Mostrar la imagen precargada o la imagen descargada
-                        if let image = preloadedImage ?? downloadedImage {
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(maxWidth: .infinity, maxHeight: 300)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                        } else {
-                            // Mostrar un placeholder si no hay imagen
-                            Image("placeholder")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(maxWidth: .infinity, maxHeight: 300)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .onAppear {
+                    if preloadedImage != nil {
+                        isLoading = false
+                    } else if let imageURL = service.imageURL {
+                        downloadImage(from: imageURL)
+                    } else {
+                        isLoading = false
+                    }
+                }
+
+                // Botón de cierre
+                VStack {
+                    HStack {
+                        Button(action: {
+                            presentationMode.wrappedValue.dismiss()
+                        }) {
+                            Image(systemName: "chevron.backward.circle.fill")
+                                .font(.system(size: 30))
+                                .foregroundColor(.white)
                         }
-                        
-                        // Mostrar el resto del contenido después de que la imagen esté cargada
-                        Text(service.title)
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                        
-                        Text(service.descripcion)
-                            .font(.body)
-                            .foregroundColor(.gray)
-
-                        HStack {
-                            Text("Precio: \(formattedPrice(service.price))")
-                            Spacer()
-                            Text("Duración: \(service.duracion) minutos")
-                        }
-                        .font(.headline)
-
-                        Text("Categorías:")
-                            .font(.headline)
-                        Text(service.categorias.joined(separator: ", "))
-                            .font(.body)
-                            .foregroundColor(.gray)
-
+                        .padding()
                         Spacer()
                     }
-                    .padding()
+                    Spacer()
+                    HStack {
+                        Text("\(formattedPrice(service.price))")
+                            .font(.title)
+                            .foregroundColor(.white)
+                            .padding(.trailing, 25)
+                        Spacer()
+                        NavigationLink(destination: EmptyView()) {
+                            Text("Reservar")
+                                .fontWeight(.light)
+                                .foregroundColor(.black)
+                                .frame(maxWidth: .infinity, minHeight: 45, maxHeight: 45)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                        .fill(Color.white)
+                                )
+                        }
+                    }
+                    .padding(.horizontal)
                 }
-                .navigationTitle("Detalles del Servicio")
+                .padding(.top, 50)
+                .padding(.leading, 10)
+                .ignoresSafeArea(edges: .top)
             }
         }
-        .onAppear {
-            if preloadedImage != nil {
-                // Si ya tenemos la imagen precargada, no hay necesidad de descargarla
-                isLoading = false
-            } else if let imageURL = service.imageURL {
-                // Si no hay imagen precargada, descargar la imagen
-                downloadImage(from: imageURL)
-            } else {
-                isLoading = false  // No hay imagen, ocultamos el loader
-            }
-        }
+        .navigationBarHidden(true)
     }
     
-    // Función para descargar la imagen manualmente
     private func downloadImage(from url: String) {
         guard let imageURL = URL(string: url) else {
             isLoading = false
             return
         }
         
-        // Usar URLSession para descargar la imagen
         URLSession.shared.dataTask(with: imageURL) { data, response, error in
             if let data = data, let image = UIImage(data: data) {
                 DispatchQueue.main.async {
-                    self.downloadedImage = image  // Actualizar la imagen descargada
-                    self.isLoading = false  // Ocultar el loader
+                    self.downloadedImage = image
+                    self.isLoading = false
                 }
             } else {
                 DispatchQueue.main.async {
-                    self.isLoading = false  // Manejar el error
+                    self.isLoading = false
                 }
             }
         }.resume()
     }
 
-    // Función para formatear el precio
     func formattedPrice(_ price: Double) -> String {
         if price == floor(price) {
             return String(format: "%.0f€", price)
         } else {
             return String(format: "%.2f€", price)
+        }
+    }
+
+    @ViewBuilder
+    func complementoButton(title: String) -> some View {
+        Button(action: {
+            print(title)
+        }) {
+            Text(title)
+                .font(.caption2)
+                .foregroundColor(.white)
+                .frame(width: 120, height: 70)
+                .background(Color.gray.opacity(0.6))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
 }
