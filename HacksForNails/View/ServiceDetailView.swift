@@ -91,7 +91,7 @@ struct ServiceDetailView: View {
                                             
                                             NavigationLink(destination: EmptyView()) {
                                                 Text("Selecciona estilista")
-                                                    .fontWeight(.light)
+                                                    .fontWeight(.bold)
                                                     .foregroundColor(.black)
                                                     .frame(maxWidth: .infinity, minHeight: 45, maxHeight: 45)
                                                     .background(
@@ -163,7 +163,7 @@ struct ServiceDetailView: View {
                         Spacer()
                         NavigationLink(destination: EmptyView()) {
                             Text("Reservar")
-                                .fontWeight(.light)
+                                .fontWeight(.bold)
                                 .foregroundColor(.black)
                                 .frame(maxWidth: .infinity, minHeight: 45, maxHeight: 45)
                                 .background(

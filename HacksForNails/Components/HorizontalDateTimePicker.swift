@@ -10,7 +10,7 @@ struct HorizontalDateTimePicker: View {
     @State private var selectedDateIndex = 2
     @State private var selectedTimeIndex = 2
 
-    let dates = ["Oct 20", "Oct 21", "Oct 22", "Oct 23", "Oct 24", "Oct 25"]
+    let dates = generateDates()
     let times = ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00"]
 
     var body: some View {
@@ -26,6 +26,26 @@ struct HorizontalDateTimePicker: View {
         }
         .background(Color.black.edgesIgnoringSafeArea(.all)) // Fondo negro
     }
+
+    static func generateDates() -> [String] {
+        let today = Date()
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "es_ES")
+        dateFormatter.dateFormat = "dd MMM"
+
+        var dates = [String]()
+        // 1 day before today
+        if let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today) {
+            dates.append(dateFormatter.string(from: yesterday))
+        }
+        // From today to 6 months + 1 day
+        for i in 0...181 {
+            if let futureDate = Calendar.current.date(byAdding: .day, value: i, to: today) {
+                dates.append(dateFormatter.string(from: futureDate))
+            }
+        }
+        return dates
+    }
 }
 
 struct HorizontalPicker: View {
@@ -38,45 +58,57 @@ struct HorizontalPicker: View {
         GeometryReader { geometry in
             let itemWidth = geometry.size.width / 3 // 3 items visible at a time
             let centerX = geometry.size.width / 2
+            let todayIndex = 1 // Hoy será el índice 1 (porque el índice 0 es ayer)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 ScrollViewReader { scrollView in
                     HStack(spacing: 10) {
-                        ForEach(0..<items.count, id: \.self) { index in
-                            Text(items[index])
-                                .font(.system(size: 20, weight: index == selectedIndex ? .bold : .regular))
-                                .foregroundColor(index == selectedIndex ? .black : .gray) // White for selected, gray for others
+                        ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+                            let isSelected = index == selectedIndex
+
+                            let textColor: LinearGradient = isSelected ?
+                            LinearGradient(gradient: Gradient(colors: [Color.black]), startPoint: .leading, endPoint: .trailing) :
+                            (index < selectedIndex ?
+                                LinearGradient(gradient: Gradient(colors: [.black.opacity(0.5), .gray]), startPoint: .leading, endPoint: .trailing) :
+                                LinearGradient(gradient: Gradient(colors: [.gray, .black.opacity(0.5)]), startPoint: .leading, endPoint: .trailing))
+
+                            let backgroundGradient = isSelected ?
+                                LinearGradient(gradient: Gradient(colors: [Color.white]), startPoint: .leading, endPoint: .trailing) :
+                                (index < selectedIndex ?
+                                    LinearGradient(gradient: Gradient(colors: [.black, .gray.opacity(0.8)]), startPoint: .leading, endPoint: .trailing) :
+                                    LinearGradient(gradient: Gradient(colors: [.gray.opacity(0.8), .black]), startPoint: .leading, endPoint: .trailing))
+
+                            Text(item)
+                                .font(.system(size: 20, weight: isSelected ? .bold : .regular))
+                                .foregroundStyle(textColor) // Aplicamos el color de texto como LinearGradient
                                 .frame(width: itemWidth, height: 80)
-                                .background {
-                                    if index == selectedIndex {
-                                        Color.white
-                                    } else {
-                                        LinearGradient(gradient: Gradient(colors: [.gray.opacity(0.6), .gray.opacity(0.3)]), startPoint: .leading, endPoint: .trailing)
-                                    }
-                                }
+                                .background(backgroundGradient) // Fondo con gradiente
                                 .cornerRadius(10)
                                 .contentShape(Rectangle())
                                 .onTapGesture {
-                                    withAnimation {
-                                        selectedIndex = index
-                                        scrollView.scrollTo(index, anchor: .center)
+                                    if index >= todayIndex { // Solo permitir seleccionar desde hoy en adelante
+                                        withAnimation {
+                                            selectedIndex = index
+                                            scrollView.scrollTo(index, anchor: .center)
+                                        }
                                     }
                                 }
                         }
                     }
-                    .padding(.horizontal, (geometry.size.width - itemWidth) / 2) // Center first and last elements
+                    .padding(.horizontal, (geometry.size.width - itemWidth) / 2) // Centrar primer y último elementos
                     .gesture(
                         DragGesture()
                             .onChanged { value in
                                 dragOffset = value.translation.width
                             }
                             .onEnded { value in
-                                let dragThreshold: CGFloat = 50 // Adjust to your needs
-                                if dragOffset > dragThreshold && selectedIndex > 0 {
-                                    selectedIndex -= 1
-                                } else if dragOffset < -dragThreshold && selectedIndex < items.count - 1 {
-                                    selectedIndex += 1
-                                }
+                                let dragThreshold: CGFloat = 50
+                                let newOffset = dragOffset + value.predictedEndTranslation.width
+                                let estimatedIndex = selectedIndex - Int(newOffset / itemWidth)
+
+                                // Solo permitir seleccionar fechas a partir de hoy
+                                selectedIndex = max(todayIndex, min(estimatedIndex, items.count - 1))
+                                
                                 withAnimation {
                                     scrollView.scrollTo(selectedIndex, anchor: .center)
                                 }
