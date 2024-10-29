@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7A1419BB2CCFA988003F0141 /* StylistSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1419BA2CCFA988003F0141 /* StylistSelectionView.swift */; };
 		7A1EBC862C2078F8004B04C4 /* HacksForNailsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1EBC852C2078F8004B04C4 /* HacksForNailsApp.swift */; };
 		7A1EBC882C2078F8004B04C4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1EBC872C2078F8004B04C4 /* ContentView.swift */; };
 		7A1EBC8A2C2078F9004B04C4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A1EBC892C2078F9004B04C4 /* Assets.xcassets */; };
@@ -59,6 +60,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7A1419BA2CCFA988003F0141 /* StylistSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StylistSelectionView.swift; sourceTree = "<group>"; };
 		7A1EBC822C2078F8004B04C4 /* HacksForNails.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HacksForNails.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7A1EBC852C2078F8004B04C4 /* HacksForNailsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HacksForNailsApp.swift; sourceTree = "<group>"; };
 		7A1EBC872C2078F8004B04C4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -187,6 +189,7 @@
 				7AC7C76D2CA2F896001727EF /* LoadingView.swift */,
 				7AC4C8B62CB847CE00B98E48 /* ServiceView.swift */,
 				7AC4C8BA2CC2AC2900B98E48 /* ServiceManagementView.swift */,
+				7A1419BA2CCFA988003F0141 /* StylistSelectionView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -366,6 +369,7 @@
 				7AC4C8BD2CC2AED800B98E48 /* ServiceManagementModelView.swift in Sources */,
 				7A7FFFCD2C94369F00A47013 /* CreatePass.swift in Sources */,
 				7A21FDF32C21D75100D8990B /* Login.swift in Sources */,
+				7A1419BB2CCFA988003F0141 /* StylistSelectionView.swift in Sources */,
 				7AE9D3CB2C89DFB00066A958 /* ExcelUploaderView.swift in Sources */,
 				7AC4C8C12CC3A9AC00B98E48 /* ServiceDetailView.swift in Sources */,
 				7A7FFFBE2C92E4BF00A47013 /* Appointment.swift in Sources */,

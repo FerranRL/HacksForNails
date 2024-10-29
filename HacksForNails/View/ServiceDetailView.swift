@@ -6,221 +6,207 @@ struct ServiceDetailView: View {
     @State private var downloadedImage: UIImage? = nil
     @State private var isLoading = true
     @Environment(\.presentationMode) var presentationMode
-    @State private var contentHeight: CGFloat = 0 // Variable para almacenar la altura del contenido
+    @State private var contentHeight: CGFloat = 0
+
+    @State private var selectedStylist: Stylist?
+    @State private var isStylistSelected = false
 
     var body: some View {
         GeometryReader { geometry in
-            ZStack {
-                // Fondo de la pantalla
-                Color.black
-                    .ignoresSafeArea()
+            ZStack(alignment: .top) {
+                Color.black.ignoresSafeArea()
 
-                Group {
-                    if isLoading {
-                        VStack {
-                            ProgressView("Cargando...")
-                                .progressViewStyle(CircularProgressViewStyle())
-                                .font(.title2)
-                                .padding()
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    } else {
-                        // Usamos GeometryReader dentro del ScrollView para medir el tamaño del contenido
-                        ScrollView(contentHeight > geometry.size.height ? .vertical : []) {
-                            VStack(spacing: 0) {
-                                ZStack(alignment: .topLeading) {
-                                    if let image = preloadedImage ?? downloadedImage {
-                                        Image(uiImage: image)
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: geometry.size.width, height: geometry.size.height * 3 / 4)
-                                            .clipped()
-                                            .ignoresSafeArea(edges: .top)
-                                    } else {
-                                        Image("placeholder")
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: geometry.size.width, height: geometry.size.height * 3 / 4)
-                                            .clipped()
-                                            .ignoresSafeArea(edges: .top)
-                                    }
-
-                                    // Degradado para mejorar la legibilidad del texto
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [Color.black.opacity(0), Color.black]),
-                                        startPoint: .top,
-                                        endPoint: .bottom
-                                    )
-                                    .frame(height: geometry.size.height * 3 / 4)
+                if isLoading {
+                    LoadingView()
+                } else {
+                    ScrollView(contentHeight > geometry.size.height ? .vertical : []) {
+                        VStack(spacing: 0) {
+                            ZStack(alignment: .bottomLeading) {
+                                // Fondo de la imagen
+                                Image(uiImage: preloadedImage ?? downloadedImage ?? UIImage(named: "placeholder")!)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: geometry.size.width, height: geometry.size.height * 3 / 4)
+                                    .clipped()
                                     .ignoresSafeArea(edges: .top)
 
-                                    VStack(alignment: .leading, spacing: 16) {
-                                        Text(service.title)
-                                            .font(.largeTitle)
-                                            .fontWeight(.bold)
-                                            .foregroundColor(.white)
-                                            .padding(.horizontal)
-                                            .padding(.top, 20)
-                                        
-                                        Text(service.descripcion)
-                                            .font(.body)
-                                            .foregroundColor(.white)
-                                            .padding(.horizontal)
-                                            .padding(.bottom, 20)
-                                        
-                                        HStack {
-                                            Text("Duración \(service.duracion) minutos")
-                                                .foregroundColor(.gray)
-                                                .padding(.bottom, 20)
-                                            Spacer()
-                                        }
-                                        .font(.headline)
-                                        .padding(.horizontal)
-                                        
-                                        VStack(alignment: .leading, spacing: 16) {
-                                            Text("¿Quieres añadir algún complemento?")
-                                                .font(.body)
-                                                .bold()
-                                                .foregroundStyle(.white)
-                                            
-                                            HStack(spacing: 20) {
-                                                complementoButton(title: "Complemento 1")
-                                                complementoButton(title: "Complemento 2")
-                                                complementoButton(title: "Complemento 3")
-                                            }
-                                            
-                                            NavigationLink(destination: EmptyView()) {
-                                                Text("Selecciona estilista")
-                                                    .fontWeight(.bold)
-                                                    .foregroundColor(.black)
-                                                    .frame(maxWidth: .infinity, minHeight: 45, maxHeight: 45)
-                                                    .background(
-                                                        RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                                            .fill(Color.white)
-                                                    )
-                                            }
-                                        }
-                                        .padding(.horizontal)
-                                        
-                                        HStack {
-                                            Text("Selecciona fecha y hora")
-                                                .font(.body)
-                                                .bold()
-                                                .foregroundStyle(.white)
-                                            
-                                            Spacer()
-                                            
-                                        }
-                                        .padding(.horizontal)
-                                        .padding(.bottom, 10)
-                                        VStack(alignment: .leading) {
-                                            HorizontalDateTimePicker()
-                                        }
+                                // Degradado encima de la imagen
+                                LinearGradient(
+                                    gradient: Gradient(colors: [Color.black.opacity(0), Color.black]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                                .frame(height: geometry.size.height * 3 / 4)
+                                .ignoresSafeArea(edges: .top)
 
+                                VStack(alignment: .leading, spacing: 16) {
+                                    // Título y descripción encima de la imagen
+                                    Text(service.title)
+                                        .font(.largeTitle)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal)
+                                        .padding(.top, 20)
+                                    
+                                    Text(service.descripcion)
+                                        .font(.body)
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal)
+                                        .padding(.bottom, 20)
+                                    
+                                    HStack {
+                                        Text("Duración \(service.duracion) minutos")
+                                            .foregroundColor(.gray)
                                         Spacer()
                                     }
-                                    .padding(.top, 100)
+                                    .font(.headline)
+                                    .padding(.horizontal)
                                 }
+                                .padding(.top, 50)
                             }
-                            .background(GeometryReader { geo in
-                                Color.clear.onAppear {
-                                    self.contentHeight = geo.size.height // Obtenemos la altura del contenido
-                                }
-                            })
+
+                            // Contenido principal de la vista después de la imagen
+                            serviceDetailsContent()
                         }
-                        .ignoresSafeArea(edges: .top)
-                    }
-                }
-                .onAppear {
-                    if preloadedImage != nil {
-                        isLoading = false
-                    } else if let imageURL = service.imageURL {
-                        downloadImage(from: imageURL)
-                    } else {
-                        isLoading = false
+                        .background(GeometryReader { geo in
+                            Color.clear.onAppear {
+                                self.contentHeight = geo.size.height
+                            }
+                        })
                     }
                 }
 
-                // Botón de cierre
-                VStack {
-                    HStack {
-                        Button(action: {
-                            presentationMode.wrappedValue.dismiss()
-                        }) {
-                            Image(systemName: "chevron.backward.circle.fill")
-                                .font(.system(size: 30))
-                                .foregroundColor(.white)
-                        }
-                        .padding()
-                        Spacer()
-                    }
+                bottomBar(price: formattedPrice(service.price))
+            }
+            .navigationBarHidden(true)
+            .onAppear { loadImage() }
+        }
+    }
+
+    private func loadImage() {
+        if preloadedImage != nil {
+            isLoading = false
+        } else if let imageURL = service.imageURL {
+            downloadImage(from: imageURL)
+        } else {
+            isLoading = false
+        }
+    }
+
+    private func serviceDetailsContent() -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            stylistSelectionSection()
+            
+            dateTimePickerSection()
+        }
+    }
+
+    private func stylistSelectionSection() -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            if let stylist = selectedStylist {
+                HStack {
+                    Image(stylist.imageName)
+                        .resizable()
+                        .frame(width: 50, height: 50)
+                        .clipShape(Circle())
+                    
+                    Text(stylist.name)
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    
                     Spacer()
-                    HStack {
-                        Text("\(formattedPrice(service.price))")
-                            .font(.title)
-                            .foregroundColor(.white)
-                            .padding(.trailing, 25)
-                        Spacer()
-                        NavigationLink(destination: EmptyView()) {
-                            Text("Reservar")
-                                .fontWeight(.bold)
-                                .foregroundColor(.black)
-                                .frame(maxWidth: .infinity, minHeight: 45, maxHeight: 45)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                        .fill(Color.white)
-                                )
-                        }
-                    }
-                    .padding(.horizontal)
                 }
-                .padding(.top, 50)
-                .padding(.leading, 10)
-                .ignoresSafeArea(edges: .top)
+                .padding(.horizontal)
+            } else {
+                NavigationLink(destination: StylistSelectionView(selectedStylist: $selectedStylist)) {
+                    Text("Selecciona estilista")
+                        .fontWeight(.bold)
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity, minHeight: 45)
+                        .background(RoundedRectangle(cornerRadius: 10).fill(Color.white))
+                }
+                .padding(.horizontal)
             }
         }
-        .navigationBarHidden(true)
+        .padding(.bottom, 20)
     }
-    
+
+    private func dateTimePickerSection() -> some View {
+        VStack(alignment: .leading) {
+            HStack {
+                Text("Selecciona fecha y hora")
+                    .font(.body)
+                    .bold()
+                    .foregroundColor(.white)
+                
+                Spacer()
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 10)
+            
+            HorizontalDateTimePicker()
+                .disabled(!isStylistSelected)
+                .padding(.horizontal)
+        }
+    }
+
+    private func bottomBar(price: String) -> some View {
+        VStack {
+            HStack {
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Image(systemName: "chevron.backward.circle.fill")
+                        .font(.system(size: 30))
+                        .foregroundColor(.white)
+                }
+                .padding()
+                Spacer()
+            }
+            Spacer()
+            HStack {
+                Text(price)
+                    .font(.title)
+                    .foregroundColor(.white)
+                    .padding(.trailing, 25)
+                Spacer()
+                Button(action: {
+                    // Acción para reservar
+                }) {
+                    Text("Reservar")
+                        .fontWeight(.bold)
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity, minHeight: 45, maxHeight: 45)
+                        .background(RoundedRectangle(cornerRadius: 10).fill(Color.white))
+                }
+                .disabled(!isStylistSelected)
+                .padding(.horizontal)
+            }
+        }
+        .padding(.top, 50)
+        .padding(.leading, 10)
+        .ignoresSafeArea(edges: .top)
+    }
+
     private func downloadImage(from url: String) {
         guard let imageURL = URL(string: url) else {
             isLoading = false
             return
         }
         
-        URLSession.shared.dataTask(with: imageURL) { data, response, error in
-            if let data = data, let image = UIImage(data: data) {
-                DispatchQueue.main.async {
+        URLSession.shared.dataTask(with: imageURL) { data, _, _ in
+            DispatchQueue.main.async {
+                if let data = data, let image = UIImage(data: data) {
                     self.downloadedImage = image
-                    self.isLoading = false
                 }
-            } else {
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                }
+                self.isLoading = false
             }
         }.resume()
     }
 
-    func formattedPrice(_ price: Double) -> String {
-        if price == floor(price) {
-            return String(format: "%.0f€", price)
-        } else {
-            return String(format: "%.2f€", price)
-        }
-    }
-
-    @ViewBuilder
-    func complementoButton(title: String) -> some View {
-        Button(action: {
-            print(title)
-        }) {
-            Text(title)
-                .font(.caption2)
-                .foregroundColor(.white)
-                .frame(width: 120, height: 70)
-                .background(Color.gray.opacity(0.6))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-        }
+    private func formattedPrice(_ price: Double) -> String {
+        price == floor(price) ? String(format: "%.0f€", price) : String(format: "%.2f€", price)
     }
 }
+
+

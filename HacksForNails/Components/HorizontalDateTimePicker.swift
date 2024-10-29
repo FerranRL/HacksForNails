@@ -57,7 +57,7 @@ struct HorizontalPicker: View {
     var body: some View {
         GeometryReader { geometry in
             let itemWidth = geometry.size.width / 3 // 3 items visible at a time
-            let centerX = geometry.size.width / 2
+            //let centerX = geometry.size.width / 2
             let todayIndex = 1 // Hoy será el índice 1 (porque el índice 0 es ayer)
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -102,7 +102,7 @@ struct HorizontalPicker: View {
                                 dragOffset = value.translation.width
                             }
                             .onEnded { value in
-                                let dragThreshold: CGFloat = 50
+                                //let dragThreshold: CGFloat = 50
                                 let newOffset = dragOffset + value.predictedEndTranslation.width
                                 let estimatedIndex = selectedIndex - Int(newOffset / itemWidth)
 
