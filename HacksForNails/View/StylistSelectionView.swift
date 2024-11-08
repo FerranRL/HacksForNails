@@ -12,9 +12,9 @@ struct StylistSelectionView: View {
     @Binding var selectedStylist: Stylist? // Variable que recibirá el estilista seleccionado
     
     let stylists = [
-        Stylist(name: "Irina", rating: 4.8, imageName: "irina_image"),
-        Stylist(name: "Laia", rating: 5.0, imageName: "laia_image"),
-        Stylist(name: "Primero Disponible", rating: nil, imageName: "placeholder")
+        Stylist(name: "Irina", imageName: "profile_photo"),
+        Stylist(name: "Laia", imageName: "person1"),
+        Stylist(name: "Primero Disponible", imageName: "placeholder")
     ]
 
     var body: some View {
@@ -27,11 +27,10 @@ struct StylistSelectionView: View {
             ScrollView {
                 LazyVGrid(columns: [GridItem(), GridItem()], spacing: 20) {
                     ForEach(stylists, id: \.name) { stylist in
-                        Button(action: {
+                        StylistCard(stylist: stylist) {
+                            // Closure que se ejecuta cuando se selecciona el estilista
                             selectedStylist = stylist
                             presentationMode.wrappedValue.dismiss()
-                        }) {
-                            StylistCard(stylist: stylist)
                         }
                     }
                 }
@@ -41,41 +40,84 @@ struct StylistSelectionView: View {
         .background(Color.black.ignoresSafeArea())
     }
 }
-
-// Modelo para el estilista
-struct Stylist {
-    let name: String
-    let rating: Double?
-    let imageName: String
-}
-
-// Tarjeta del estilista
-struct StylistCard: View {
-    let stylist: Stylist
     
-    var body: some View {
-        VStack {
-            Image(stylist.imageName)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 100, height: 100)
-                .clipShape(RoundedRectangle(cornerRadius: 15))
-            
-            Text(stylist.name)
-                .foregroundColor(.white)
-                .font(.headline)
-            
-            if let rating = stylist.rating {
-                HStack(spacing: 2) {
-                    Image(systemName: "star.fill")
-                        .foregroundColor(.yellow)
-                    Text(String(format: "%.1f", rating))
-                        .foregroundColor(.white)
-                }
-            }
-        }
-        .frame(width: 150, height: 180)
-        .background(Color.gray.opacity(0.2))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+    // Modelo para el estilista
+    struct Stylist {
+        let name: String
+        let imageName: String
     }
-}
+    
+    // Tarjeta del estilista
+    struct StylistCard: View {
+        let stylist: Stylist
+        var onSelect: () -> Void
+        
+        var body: some View {
+            VStack {
+                Image(stylist.imageName)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 120, height: 120)
+                    .clipShape(RoundedRectangle(cornerRadius: 15))
+                
+                Text(stylist.name)
+                    .foregroundColor(.white)
+                    .font(.headline)
+                
+                HStack {
+                    if stylist.name == "Primero Disponible" {
+                        Button(action: {
+                            onSelect()
+                        }) {
+                            Text("+")
+                                .font(.caption)
+                                .foregroundColor(.black)
+                                .fontWeight(.bold)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 8)
+                                .background(RoundedRectangle(cornerRadius: 10).fill(Color.white))
+                                .cornerRadius(5)
+                            
+                        }
+                    } else {
+                        Button(action: {
+                            print("Ver más")
+                        }) {
+                            Text("Ver ficha")
+                                .font(.caption)
+                                .foregroundColor(.black)
+                                .padding(8)
+                                .background(RoundedRectangle(cornerRadius: 10).fill(Color.white))
+                                .cornerRadius(5)
+                            
+                        }
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            onSelect()
+                        }) {
+                            Text("+")
+                                .font(.caption)
+                                .foregroundColor(.black)
+                                .fontWeight(.bold)
+                                .padding(.horizontal,15)
+                                .padding(.vertical, 8)
+                                .background(RoundedRectangle(cornerRadius: 10).fill(Color.white))
+                                .cornerRadius(5)
+                            
+                        }
+                    }
+                    
+                    
+                }
+                .padding(.horizontal, 15)
+                
+                
+            }
+            .frame(width: 150, height: 220)
+            .background(Color.gray.opacity(0.2))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
+    }
+

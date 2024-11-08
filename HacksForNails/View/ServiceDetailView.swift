@@ -7,21 +7,26 @@ struct ServiceDetailView: View {
     @State private var isLoading = true
     @Environment(\.presentationMode) var presentationMode
     @State private var contentHeight: CGFloat = 0
-
-    @State private var selectedStylist: Stylist?
+    @State private var selectedStylist: Stylist? {
+        didSet {
+            // Cambia `isStylistSelected` a true si se ha seleccionado un estilista
+            isStylistSelected = selectedStylist != nil
+        }
+    }
     @State private var isStylistSelected = false
-
+    @State private var showStylistSelection = false
+    
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .top) {
                 Color.black.ignoresSafeArea()
-
+                
                 if isLoading {
                     LoadingView()
                 } else {
                     ScrollView(contentHeight > geometry.size.height ? .vertical : []) {
                         VStack(spacing: 0) {
-                            ZStack(alignment: .bottomLeading) {
+                            ZStack(alignment: .topLeading) {
                                 // Fondo de la imagen
                                 Image(uiImage: preloadedImage ?? downloadedImage ?? UIImage(named: "placeholder")!)
                                     .resizable()
@@ -29,7 +34,7 @@ struct ServiceDetailView: View {
                                     .frame(width: geometry.size.width, height: geometry.size.height * 3 / 4)
                                     .clipped()
                                     .ignoresSafeArea(edges: .top)
-
+                                
                                 // Degradado encima de la imagen
                                 LinearGradient(
                                     gradient: Gradient(colors: [Color.black.opacity(0), Color.black]),
@@ -38,7 +43,7 @@ struct ServiceDetailView: View {
                                 )
                                 .frame(height: geometry.size.height * 3 / 4)
                                 .ignoresSafeArea(edges: .top)
-
+                                
                                 VStack(alignment: .leading, spacing: 16) {
                                     // Título y descripción encima de la imagen
                                     Text(service.title)
@@ -46,7 +51,7 @@ struct ServiceDetailView: View {
                                         .fontWeight(.bold)
                                         .foregroundColor(.white)
                                         .padding(.horizontal)
-                                        .padding(.top, 20)
+                                        .padding(.top, 10) // Ajuste reducido para que no se desplace
                                     
                                     Text(service.descripcion)
                                         .font(.body)
@@ -54,35 +59,42 @@ struct ServiceDetailView: View {
                                         .padding(.horizontal)
                                         .padding(.bottom, 20)
                                     
-                                    HStack {
-                                        Text("Duración \(service.duracion) minutos")
-                                            .foregroundColor(.gray)
-                                        Spacer()
-                                    }
-                                    .font(.headline)
-                                    .padding(.horizontal)
+                                    Text("Duración \(service.duracion) minutos")
+                                        .foregroundColor(.gray)
+                                        .font(.headline)
+                                        .padding(.horizontal)
+                                        .padding(.bottom, 20)
+                                    
+                                    serviceDetailsContent()
                                 }
-                                .padding(.top, 50)
+                                .padding(.top, 250)
                             }
-
-                            // Contenido principal de la vista después de la imagen
-                            serviceDetailsContent()
                         }
                         .background(GeometryReader { geo in
                             Color.clear.onAppear {
                                 self.contentHeight = geo.size.height
                             }
                         })
+                        .padding(.bottom, 80)
                     }
+                    .ignoresSafeArea()
                 }
-
+                
                 bottomBar(price: formattedPrice(service.price))
             }
             .navigationBarHidden(true)
             .onAppear { loadImage() }
+            .navigationDestination(isPresented: $showStylistSelection) {
+                StylistSelectionView(selectedStylist: $selectedStylist)
+                    .onDisappear {
+                        if selectedStylist != nil {
+                            isStylistSelected = true
+                        }
+                    }
+            }
         }
     }
-
+    
     private func loadImage() {
         if preloadedImage != nil {
             isLoading = false
@@ -92,7 +104,7 @@ struct ServiceDetailView: View {
             isLoading = false
         }
     }
-
+    
     private func serviceDetailsContent() -> some View {
         VStack(alignment: .leading, spacing: 16) {
             stylistSelectionSection()
@@ -100,7 +112,7 @@ struct ServiceDetailView: View {
             dateTimePickerSection()
         }
     }
-
+    
     private func stylistSelectionSection() -> some View {
         VStack(alignment: .leading, spacing: 16) {
             if let stylist = selectedStylist {
@@ -115,10 +127,27 @@ struct ServiceDetailView: View {
                         .foregroundColor(.white)
                     
                     Spacer()
+                    
+                    // Botón para cambiar de estilista
+                    Button(action: {
+                        showStylistSelection = true
+                    }) {
+                        Text("Cambiar")
+                            .fontWeight(.regular)
+                            .foregroundColor(.black)
+                            .padding(8)
+                            .background(RoundedRectangle(cornerRadius: 10).fill(Color.white))
+                            .cornerRadius(5)
+                    }
                 }
                 .padding(.horizontal)
+                .task {
+                    isStylistSelected = true
+                }
             } else {
-                NavigationLink(destination: StylistSelectionView(selectedStylist: $selectedStylist)) {
+                Button(action: {
+                    showStylistSelection = true
+                }) {
                     Text("Selecciona estilista")
                         .fontWeight(.bold)
                         .foregroundColor(.black)
@@ -130,7 +159,7 @@ struct ServiceDetailView: View {
         }
         .padding(.bottom, 20)
     }
-
+    
     private func dateTimePickerSection() -> some View {
         VStack(alignment: .leading) {
             HStack {
@@ -149,7 +178,7 @@ struct ServiceDetailView: View {
                 .padding(.horizontal)
         }
     }
-
+    
     private func bottomBar(price: String) -> some View {
         VStack {
             HStack {
@@ -181,13 +210,20 @@ struct ServiceDetailView: View {
                 }
                 .disabled(!isStylistSelected)
                 .padding(.horizontal)
+                
             }
+            .padding(.top, 20)
+            .padding(.bottom, 35)
+            .background {
+                Color.black
+            }
+            
         }
         .padding(.top, 50)
         .padding(.leading, 10)
-        .ignoresSafeArea(edges: .top)
+        .ignoresSafeArea(edges: [.top, .bottom])
     }
-
+    
     private func downloadImage(from url: String) {
         guard let imageURL = URL(string: url) else {
             isLoading = false
@@ -203,10 +239,8 @@ struct ServiceDetailView: View {
             }
         }.resume()
     }
-
+    
     private func formattedPrice(_ price: Double) -> String {
         price == floor(price) ? String(format: "%.0f€", price) : String(format: "%.2f€", price)
     }
 }
-
-

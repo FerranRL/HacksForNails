@@ -160,6 +160,7 @@ struct Home: View {
                     ForEach(services, id: \.id) { service in
                         ServiceCard(service: service)
                         .frame(width: 300)
+                        .padding(.horizontal, 8)
                     }
                 } else {
                     Text("No hay servicios disponibles")
