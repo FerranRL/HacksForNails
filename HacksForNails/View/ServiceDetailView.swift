@@ -9,11 +9,16 @@ struct ServiceDetailView: View {
     @State private var contentHeight: CGFloat = 0
     @State private var selectedStylist: Stylist? {
         didSet {
-            // Cambia `isStylistSelected` a true si se ha seleccionado un estilista
             isStylistSelected = selectedStylist != nil
         }
     }
+    @State private var selectedSalon: Salon? {
+        didSet {
+            isSalonSelected = selectedSalon != nil
+        }
+    }
     @State private var isStylistSelected = false
+    @State private var isSalonSelected = false
     @State private var showStylistSelection = false
     
     var body: some View {
@@ -85,7 +90,7 @@ struct ServiceDetailView: View {
             .navigationBarHidden(true)
             .onAppear { loadImage() }
             .navigationDestination(isPresented: $showStylistSelection) {
-                StylistSelectionView(selectedStylist: $selectedStylist)
+                StylistSelectionView(selectedStylist: $selectedStylist, selectedSalon: $selectedSalon)
                     .onDisappear {
                         if selectedStylist != nil {
                             isStylistSelected = true
@@ -143,6 +148,7 @@ struct ServiceDetailView: View {
                 .padding(.horizontal)
                 .task {
                     isStylistSelected = true
+                    print("El salon seleccionado es: \(selectedSalon?.name)")
                 }
             } else {
                 Button(action: {
