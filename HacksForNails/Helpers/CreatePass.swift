@@ -85,7 +85,10 @@ func presentPassToWallet(passPackage: Data) {
         
         // Presentar el controlador de agregar pase
         if let addPassesViewController = addPassesViewController {
-            UIApplication.shared.windows.first?.rootViewController?.present(addPassesViewController, animated: true, completion: nil)
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let window = windowScene.windows.first {
+                window.rootViewController?.present(addPassesViewController, animated: true, completion: nil)
+            }
         }
     } catch {
         print("Error al presentar el pase: \(error.localizedDescription)")

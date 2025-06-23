@@ -11,6 +11,7 @@ import FirebaseFirestore
 import FirebaseStorage
 
 struct Home: View {
+    @StateObject var serviceViewModel = ServiceViewModel()
     @State var segmentedTags: [String] = ["Ofertas", "Uñas", "Pestañas", "Facial", "Nutrición"]
     @State var selectedIndex: Int = 0
     @StateObject var loginModel: LoginViewModel = LoginViewModel.shared
@@ -22,34 +23,34 @@ struct Home: View {
     var user: User
     
     // Datos de ejemplo para los servicios
-    let servicesByCategory: [String: [ServiceData]] = [
-        "Ofertas": [
-            ServiceData(imageName: "nail_art", title: "Semipermanente Manos Básica + Refuerzo Gel en Uñas", price: "22€"),
-            ServiceData(imageName: "pedicura", title: "Pedicura Express - Retirada de Durezas + Exfoliación + Masaje Hidratante + Esmaltado (Pedicura)", price: "36€"),
-            ServiceData(imageName: "cejas", title: "Diseño de Cejas - Tinte de Cejas", price: "20€"),
-            ServiceData(imageName: "cejas2", title: "Laminado de Cejas - Tinte de Cejas", price: "40€")
-        ],
-        "Uñas": [
-            ServiceData(imageName: "placeholder", title: "Manicura Semipermanente", price: "25€"),
-            ServiceData(imageName: "placeholder", title: "Uñas de Gel", price: "40€"),
-            ServiceData(imageName: "placeholder", title: "Nail Art Personalizado", price: "15€")
-        ],
-        "Pestañas": [
-            ServiceData(imageName: "placeholder", title: "Servicio 1", price: "25€"),
-            ServiceData(imageName: "placeholder", title: "Servicio 2", price: "40€"),
-            ServiceData(imageName: "placeholder", title: "Nail Art Personalizado", price: "15€")
-        ],
-        "Facial": [
-            ServiceData(imageName: "placeholder", title: "Limpieza Facial Profunda", price: "45€"),
-            ServiceData(imageName: "placeholder", title: "Mascarilla Hidratante", price: "30€"),
-            ServiceData(imageName: "placeholder", title: "Peeling Facial", price: "50€")
-        ],
-        "Nutrición": [
-            ServiceData(imageName: "placeholder", title: "Consulta Nutricional", price: "60€"),
-            ServiceData(imageName: "placeholder", title: "Plan de Alimentación Personalizado", price: "80€"),
-            ServiceData(imageName: "placeholder", title: "Seguimiento Nutricional Mensual", price: "40€")
-        ]
-    ]
+//    let servicesByCategory: [String: [ServiceData]] = [
+//        "Ofertas": [
+//            ServiceData(imageName: "nail_art", title: "Semipermanente Manos Básica + Refuerzo Gel en Uñas", price: "22€"),
+//            ServiceData(imageName: "pedicura", title: "Pedicura Express - Retirada de Durezas + Exfoliación + Masaje Hidratante + Esmaltado (Pedicura)", price: "36€"),
+//            ServiceData(imageName: "cejas", title: "Diseño de Cejas - Tinte de Cejas", price: "20€"),
+//            ServiceData(imageName: "cejas2", title: "Laminado de Cejas - Tinte de Cejas", price: "40€")
+//        ],
+//        "Uñas": [
+//            ServiceData(imageName: "placeholder", title: "Manicura Semipermanente", price: "25€"),
+//            ServiceData(imageName: "placeholder", title: "Uñas de Gel", price: "40€"),
+//            ServiceData(imageName: "placeholder", title: "Nail Art Personalizado", price: "15€")
+//        ],
+//        "Pestañas": [
+//            ServiceData(imageName: "placeholder", title: "Servicio 1", price: "25€"),
+//            ServiceData(imageName: "placeholder", title: "Servicio 2", price: "40€"),
+//            ServiceData(imageName: "placeholder", title: "Nail Art Personalizado", price: "15€")
+//        ],
+//        "Facial": [
+//            ServiceData(imageName: "placeholder", title: "Limpieza Facial Profunda", price: "45€"),
+//            ServiceData(imageName: "placeholder", title: "Mascarilla Hidratante", price: "30€"),
+//            ServiceData(imageName: "placeholder", title: "Peeling Facial", price: "50€")
+//        ],
+//        "Nutrición": [
+//            ServiceData(imageName: "placeholder", title: "Consulta Nutricional", price: "60€"),
+//            ServiceData(imageName: "placeholder", title: "Plan de Alimentación Personalizado", price: "80€"),
+//            ServiceData(imageName: "placeholder", title: "Seguimiento Nutricional Mensual", price: "40€")
+//        ]
+//    ]
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
@@ -122,19 +123,7 @@ struct Home: View {
                                     .padding(.horizontal)
                                 
                                 // Carrusel de ServiceCard
-                                ScrollView(.horizontal, showsIndicators: false) {
-                                    HStack(spacing: 20) {
-                                        ForEach(servicesByCategory[segmentedTags[selectedIndex]] ?? [], id: \.title) { service in
-                                            ServiceCard(
-                                                imageName: service.imageName,
-                                                title: service.title,
-                                                price: service.price
-                                            )
-                                            .frame(width: 300)
-                                        }
-                                    }
-                                    .padding(.horizontal)
-                                }
+                                serviceCarousel()
                             }
                         }
                         .padding(.top, 80)
@@ -158,6 +147,27 @@ struct Home: View {
                     ProfileView()
                 }
             }
+        }
+    }
+    
+    // Función que genera el carrusel de servicios
+    @ViewBuilder
+    func serviceCarousel() -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 20) {
+                // Extraer los servicios de la categoría seleccionada
+                if let services = serviceViewModel.servicesByCategory[segmentedTags[selectedIndex]] {
+                    ForEach(services, id: \.id) { service in
+                        ServiceCard(service: service)
+                        .frame(width: 300)
+                        .padding(.horizontal, 8)
+                    }
+                } else {
+                    Text("No hay servicios disponibles")
+                        .foregroundColor(.white)
+                }
+            }
+            .padding(.horizontal)
         }
     }
     
@@ -244,9 +254,13 @@ struct Home: View {
 }
 
 // Estructura para los datos del servicio
-struct ServiceData {
-    let imageName: String
-    let title: String
-    let price: String
+struct ServiceData: Identifiable {
+    let id: String
+    var imageURL: String?
+    var title: String
+    var price: Double
+    var duracion: Int
+    var descripcion: String
+    var categorias: [String]  // Las categorías serán un array de strings
 }
 

@@ -29,8 +29,15 @@ struct ExcelUploaderView: UIViewControllerRepresentable {
         func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
             guard let url = urls.first else { return }
             
-            url.startAccessingSecurityScopedResource()
-            defer { url.stopAccessingSecurityScopedResource() }
+            guard url.startAccessingSecurityScopedResource() else {
+                print("No se pudo acceder al recurso de forma segura.")
+                return
+            }
+                        
+            defer {
+                // Asegúrate de detener el acceso cuando termines
+                url.stopAccessingSecurityScopedResource()
+            }
             
             do {
                 let fileData = try Data(contentsOf: url)
@@ -74,7 +81,22 @@ struct ExcelUploaderView: UIViewControllerRepresentable {
                             }
                             
                             // Leer la columna de descripción, manejar celdas vacías
-                            item["descripcion"] = row.cells[safe: 4]?.value ?? ""
+                            
+                            if let cell = row.cells[safe: 4], let descripcionValue = cell.stringValue(sharedStrings!) {
+                                item["descripcion"] = descripcionValue
+                            } else {
+                                item["descripcion"] = "Campo vacío" // Mensaje en caso de celda vacía
+                            }
+                            
+                            if let cell = row.cells[safe: 5], let categoriaValue = cell.stringValue(sharedStrings!) {
+                                // Dividir la categoría en múltiples valores si están separadas por comas (o cualquier delimitador que uses)
+                                let categorias = categoriaValue.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                                item["categorias"] = categorias  // Guardar el array de categorías
+                            } else {
+                                item["categorias"] = ["Campo vacío"]  // Array con un valor predeterminado si la celda está vacía
+                            }
+                            
+                            
                             extractedData.append(item)
                         }
                     }

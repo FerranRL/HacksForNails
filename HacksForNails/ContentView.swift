@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+//import StylistScheduleUploader
 
 struct ContentView: View {
     @StateObject var loginModel: LoginViewModel = LoginViewModel.shared
@@ -34,6 +35,7 @@ struct ContentView: View {
         .onAppear {
             // Verificar el estado del usuario al iniciar la aplicación
             loginModel.checkUserStatus()
+            StylistScheduleUploader.uploadExampleSchedulesIfNeeded()
             //loginModel.logout()
         }
     }
@@ -45,3 +47,4 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
+
