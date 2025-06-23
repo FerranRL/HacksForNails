@@ -23,6 +23,7 @@
 		7A21FE092C246D2E00D8990B /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A21FE082C246D2E00D8990B /* LoginViewModel.swift */; };
 		7A21FE0B2C247D3300D8990B /* UIApplication+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A21FE0A2C247D2200D8990B /* UIApplication+Extension.swift */; };
 		7A3D5B192C9327220084DB79 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 7A3D5B182C9327220084DB79 /* SDWebImageSwiftUI */; };
+		7A4043AB2DF94F5900E3A253 /* StylistScheduleUploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A4043AA2DF94F5800E3A253 /* StylistScheduleUploader.swift */; };
 		7A44FD082C393044007CF827 /* PhoneRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A44FD072C393044007CF827 /* PhoneRequestView.swift */; };
 		7A44FD0A2C3936BC007CF827 /* DataRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A44FD092C3936BC007CF827 /* DataRequestView.swift */; };
 		7A44FD0D2C393CC3007CF827 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A44FD0C2C393CBD007CF827 /* User.swift */; };
@@ -75,6 +76,7 @@
 		7A21FE062C246B3600D8990B /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
 		7A21FE082C246D2E00D8990B /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		7A21FE0A2C247D2200D8990B /* UIApplication+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+Extension.swift"; sourceTree = "<group>"; };
+		7A4043AA2DF94F5800E3A253 /* StylistScheduleUploader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StylistScheduleUploader.swift; sourceTree = "<group>"; };
 		7A44FD072C393044007CF827 /* PhoneRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneRequestView.swift; sourceTree = "<group>"; };
 		7A44FD092C3936BC007CF827 /* DataRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataRequestView.swift; sourceTree = "<group>"; };
 		7A44FD0C2C393CBD007CF827 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
@@ -232,6 +234,7 @@
 				7A7FFFC32C942B6E00A47013 /* Client.swift */,
 				7A7FFFBD2C92E49C00A47013 /* Appointment.swift */,
 				7A44FD0C2C393CBD007CF827 /* User.swift */,
+				7A4043AA2DF94F5800E3A253 /* StylistScheduleUploader.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -371,6 +374,7 @@
 				7A58C2CF2C3D4EBA00EA135E /* EditProfileView.swift in Sources */,
 				7AC4C8BD2CC2AED800B98E48 /* ServiceManagementModelView.swift in Sources */,
 				7A7FFFCD2C94369F00A47013 /* CreatePass.swift in Sources */,
+				7A4043AB2DF94F5900E3A253 /* StylistScheduleUploader.swift in Sources */,
 				7A21FDF32C21D75100D8990B /* Login.swift in Sources */,
 				7A1419BB2CCFA988003F0141 /* StylistSelectionView.swift in Sources */,
 				7AE9D3CB2C89DFB00066A958 /* ExcelUploaderView.swift in Sources */,
@@ -559,9 +563,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.paretsdesign.hacksfornails;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -596,9 +604,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.paretsdesign.hacksfornails;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

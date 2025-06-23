@@ -64,7 +64,7 @@ struct StylistDataView: View {
                             }
                             
                             Spacer()
-                            
+
                             // Botón "Seleccionar estilista"
                             Button(action: {
                                 //onSelect() // Llama a la acción de seleccionar estilista
